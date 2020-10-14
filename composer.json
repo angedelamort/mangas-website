@@ -1,0 +1,21 @@
+{
+    "name": "angedelamort/mangas-library",
+    "description": "Simple mangas library",
+    "type": "app",
+    "authors": [
+        {
+            "name": "angedelamort",
+            "email": "dkangel666@hotmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^7.1",
+        "angedelamort/php-sun-framework": "^0.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "mangaslib\\": "app/src/"
+        }
+    }
+}

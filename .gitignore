@@ -1,0 +1,7 @@
+vendor/
+cache/
+logs/
+
+#Idea
+.DS_Store
+.idea

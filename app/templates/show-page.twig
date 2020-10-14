@@ -1,0 +1,203 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+ {% if series.banner %}
+<img class="bg-banner" src="{{series.banner}}">
+{% endif %}
+
+<div class="ui container text">
+    {% if series.banner %}
+    <div style="height: 100px;"></div>
+    {% endif %}
+
+    <div class="ui items" style="background-color: white; border-radius: 5px; padding: 5px; border: 1px solid; box-shadow: 1px 1px 1px 1px #BBBBBB;">
+        <div class="item">
+            <div class="ui medium image">
+                <img src="{{series.cover}}">
+            </div>
+            <div class="content">
+                <div id="series" class="header" data-series-id={{series.id}}>{{series.title}}</div>
+                <div class="description">
+                <div class="text-small" style="margin-top: 15px;">Details</div>
+                <div style="margin-top: 5px;">
+                    <div class="ui label">
+                        Volumes
+                        <div class="detail">{{series.volumes}}</div>
+                    </div>
+                    <div class="ui label">
+                        Chapters
+                        <div class="detail">{{series.chapters}}</div>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <div class="ui label">
+                            Completed
+                            {% if series.is_complete %}
+                                <div class="detail">yes</div>
+                            {% else %}
+                                <div class="detail">no</div>
+                            {% endif %}
+                        </div>
+                        <div class="ui label">
+                            Status
+                            <div class="detail">{{series.status|lower}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-small" style="margin-top: 15px;">Genres</div>
+                {% for genre in series.genres %}
+                    <span class="ui basic small purple label" style="margin-bottom: 5px;">{{genre}}</span>
+                {% endfor %}
+                </div>
+                <div class="description">
+                <div class="text-small">Themes</div>
+                {% for theme in series.themes %}
+                    <span class="ui basic small violet label" style="margin-bottom: 5px;">{{theme}}</span>
+                {% endfor %}
+                </div>
+
+                <div>
+                    <div class="text-small" style="margin-top: 15px;">Alternate Titles</div>
+                    <div class="ui list" style="margin-top: 0px;">
+                        {% for lang, title in series.titles %}
+                            {% if lang != "userPreferred" and title %}
+                            <div class="item">
+                                <i class="large language middle aligned icon"></i>
+                                <div class="content">
+                                    <div class="header">{{lang}}</div>
+                                    <div class="description">{{title}}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--TODO: use userIdRole(3) instead. Also need a way tyo access constants?-->
+    {% if user and userRole == 3 %}
+    <div class="container">
+        <div id="anilistUpdate" class="ui teal labeled icon button"><i class="redo icon"></i>Update using AniList</div>
+    </div>
+    {% endif %}
+
+    <div class="ui pink segment">
+        {{series.description|raw}}
+    </div>
+
+    <h3 class="ui dividing header">Volumes</h3>
+
+    <!--TODO: use userIdRole(3) instead. Also need a way tyo access constants?-->
+    {% if user and userRole == 3 %}
+    <div class="ui container" style="margin: 10px 0">
+        <div id="addVolume" class="ui teal labeled icon button"><i class="plus icon"></i>Add New Volume</div>
+    </div>
+    {% endif %}
+    <div class="ui grid">
+    {% for volume in volumes %}
+        <div class="eight wide column">
+            <div class="ui items">
+                <div class="item">
+                    <div class="ui tiny image">
+                        <img src="{{series.thumbnail}}">
+                    </div>
+                    <div class="middle aligned content">
+                        <div class="ui small header">Volume {{volume.volume}}</div>
+                        <div class="meta">
+                            <span>ISBN: </span>
+                            <span>{{volume.isbn}}</span>
+                        </div>
+                        <div class="meta">
+                            <span>Language: </span>
+                            <span>{{volume.lang}}</span>
+                        </div>
+                        <div class="meta right floated">
+                            <a onclick="onEdit('{{ volume.isbn }}', '{{ volume.volume }}', '{{ volume.lang }}');"><i class="ui edit icon"></i></a>
+                            <a onclick="onDelete('{{ volume.isbn }}', '{{ volume.volume }}');"><i class="ui trash alternate icon"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+{% if user and userRole == 3 %}
+<div id="modalScrapper" class="ui modal">
+    <div class="header">Assign an external Series</div>
+    <div class="content">
+        <div class="ui action fluid input">
+            <input id="textSearch" type="text" placeholder="Search..." value="{{series.title}}">
+            <button id="assignSearch" class="ui button">Search</button>
+        </div>
+    </div>
+    <div class="scrolling content">
+        <div class="ui divided items">
+            <div class="item">
+                <div class="middle aligned content">NO RESULTS</div>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui cancel button">Close</div>
+    </div>
+</div>
+
+<div id="modalAddVolume" class="ui tiny modal">
+    <div class="header">Add a new Volume</div>
+    <div class="content">
+        <div class="ui action fluid input">
+            <input name="volume" type="text" placeholder="Volume number" value="">
+        </div>
+    </div>
+    <div class="content">
+        <div class="ui action fluid input">
+            <input name="isbn" type="text" placeholder="ISBN" value="">
+        </div>
+    </div>
+    <div class="content">
+        <div class="ui fluid selection dropdown">
+            <input type="hidden" name="lang" value="fr">
+            <i class="dropdown icon"></i>
+            <div class="text">Français</div>
+            <div class="menu">
+                <div class="item" data-value="french"><i class="fr flag"></i>Français</div>
+                <div class="item" data-value="japanese"><i class="jp flag"></i>Japanese</div>
+                <div class="item" data-value="english"><i class="us flag"></i>English</div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="ui fluid checkbox">
+            <input type="checkbox" checked name="addAgain">
+            <label>Add Another One</label>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui negative button">Cancel</div>
+        <div class="ui positive button">Add</div>
+    </div>
+</div>
+
+<div id="modalDeleteVolume" class="ui mini modal">
+    <div class="header">
+        Delete Volume
+    </div>
+    <div class="content">
+        <p>Are you sure you want to delete the volume?</p>
+    </div>
+    <div class="actions">
+        <div class="ui negative button">No</div>
+        <div class="ui positive button">Yes</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block js %}
+    {{parent()}}
+    {{js('/js/show-page.js')}}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+
+    <div class="ui text container">
+        <h1>Statistics</h1>
+
+        <div class="ui centered statistics">
+            <div class="statistic">
+                <div class="value">{{ series.count }}</div>
+                <div class="label">Series</div>
+            </div>
+            <div class="statistic">
+                <div class="value">{{ series.completed }}</div>
+                <div class="label">Completed</div>
+            </div>
+            <div class="statistic">
+                <div class="value">{{ volume.count }}</div>
+                <div class="label">Volumes</div>
+            </div>
+        </div>
+
+        <h2>Last Added</h2>
+        <div class="ui divided items">
+            {% for recent in volume.recentlyAdded %}
+                <div class="item">
+                    <div class="ui tiny image">
+                        <a href="/show-page/{{ recent.series.id }}/{{ recent.series.title|linkize }}"><img src="{{ recent.series.thumbnail }}"></a>
+                    </div>
+                    <div class="middle aligned content">
+                        <div class="header">{{ recent.series.title }}</div>
+                        <div class="extra" style="font-size: 0.90rem; margin-top: -4px;">
+                            Added on {{ recent.date }}
+                        </div>
+                        <div class="description">
+                            Volume {{ recent.volume }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+{% endblock %}

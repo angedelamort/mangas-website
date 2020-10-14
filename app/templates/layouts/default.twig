@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+            <title>{% block title %}{{site.name}}{% endblock %}</title>
+            {% block css %}
+                {{css('jquery')}}
+                {{css('semantic-ui')}}
+                {{css('/css/default.css')}}
+            {% endblock %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="ui fixed inverted menu">
+            {% block menu %}
+                {% include('menus/default.twig') %}
+            {% endblock %}
+        </div>
+        <div id="content" class="ui main container">
+            {% block content %}{% endblock %}
+        </div>
+        <div id="footer" class="ui inverted vertical footer segment">
+            {% block footer %}
+                {% include('footers/default.twig') %}
+            {% endblock %}
+        </div>
+
+        {% block js %}
+            {{js('jquery')}}
+            {{js('semantic-ui')}}
+            {{js('/js/default.js')}}
+        {% endblock %}
+    </body>
+</html>

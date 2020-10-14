@@ -1,0 +1,98 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+    <h1>{{site.name}}</h1>
+
+    <div class="ui segment">
+        <div class="ui stackable grid">
+            <div class="eight wide column">
+                Sort
+                <select class="ui dropdown">
+                    <option value="alpha">Alphabetical</option>
+                    <option value="updated">Last Updated</option>
+                </select>
+            </div>
+            <div class="eight wide right aligned column">
+                <div class="ui labeled input">
+                    <input type="text" placeholder="Filter">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addSeries" class="ui teal labeled icon button" style="margin-bottom: 10px;"><i class="plus icon"></i>Add New Series</div>
+
+    <div class="ui centered five stackable link cards">
+        {% for serie in series %}
+        <div class="card">
+            <a class="image" href="/show-page/{{serie.id}}/{{serie.title|linkize}}">
+                {% if serie.thumbnail %}
+                <img src="{{serie.thumbnail}}">
+                {% else %}
+                <img src="/images/cover-bg.png">
+                {% endif %}
+            </a>
+            {% if serie.is_complete %}
+            <div class="ui green right ribbon card-ribbon label">Completed</div>
+            {% endif %}
+            <div class="content">
+                <a class="content" href="/show-page/{{serie.id}}/{{serie.title|linkize}}">
+                    <div class="ui center aligned blue small header">{{serie.title}}</div>
+                </a>
+                {% if user and userRole == 3 %}
+                <div class="meta right floated">
+                    <a onclick="onEdit('{{ serie.id }}', '{{ serie.title }}');"><i class="ui edit icon"></i></a>
+                    <a onclick="onDelete('{{ serie.id }}', '{{ serie.title }}');"><i class="ui trash alternate icon"></i></a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% if user and userRole == 3 %}
+    <div id="modalAddSeries" class="ui mini modal">
+        <div class="header">Add a Series</div>
+        <div class="content">
+            <div class="ui action fluid input">
+                <input name="series" type="text" placeholder="Name" value="">
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui negative button">Cancel</div>
+            <div class="ui positive button">Add</div>
+        </div>
+    </div>
+
+    <div id="modalEditSeries" class="ui mini modal">
+        <div class="header">Edit a Series</div>
+        <div class="content">
+            <div class="ui action fluid input">
+                <input name="series" type="text" placeholder="Name" value="">
+            </div>
+        </div>
+        <div class="actions">
+            <div class="ui negative button">Cancel</div>
+            <div class="ui positive button">Update</div>
+        </div>
+    </div>
+
+    <div id="modalDeleteSeries" class="ui mini modal">
+        <div class="header">
+            Delete Series
+        </div>
+        <div class="content">
+            <p>Are you sure you want to delete the series?</p>
+        </div>
+        <div class="actions">
+            <div class="ui negative button">No</div>
+            <div class="ui positive button">Yes</div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block js %}
+    {{parent()}}
+    {{js('/js/home.js')}}
+{% endblock %}

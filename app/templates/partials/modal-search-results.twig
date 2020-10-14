@@ -1,0 +1,16 @@
+<div class="ui divided link items">
+{% for item in items %}
+    <div class="item hover" onclick="onSelectedItem('{{item.id}}');">
+        <div class="ui tiny image">
+            <img src="{{item.image}}">
+        </div>
+        <div class="middle aligned content">
+        {% for lang, title in item.titles %}
+            {% if lang != 'userPreferred' %}
+            <div>{{lang}}: {{title}}</div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+</div>
