@@ -17,13 +17,21 @@ docker-compose up
 
 ### Initialization
 
-By default, the database is empty. You will need to add a user manually.
+By default, the database is empty. You will need to add a user manually if you
+want to be able to edit. Just create a simple script to create you password.
+ 
+```PHP
+<?php
+echo hash('sha512', "your password here");
+```
+
+If you want to be an admin, be sure to set the ``rolw`` to 1. (Yeah yeah, there's a typo)
 
 ## Deploying
 
 1. The script is only windows specific and use power shell.
 1. You will need to generate a ssh key pair and upload the public one on your server. Usually located in your ``.ssh/authorized_keys``
-1. Double click on the script or
+1. Double click on the script or in a powershell
 
 ```Shell
 cd deploy
@@ -38,11 +46,12 @@ See ``data/sql/*.sql`` scripts for easy imports.
 
 ### Current
 
-* Committing in gitlab. 
+* Homepage Filters
 
 ### Next
 
-* Pass the todos
+* fix all the todos (or transfer them here)
 * login page with referer
 * make categories per language? with sections? Might be more interesting for browsing.
 * when click on AngeDeLaMort -> go to profile.
+* Fix databases.
