@@ -21,6 +21,15 @@ $( document ).ready(function() {
             }
         }).modal('show');
     });
+
+    $('#filter').keyup(function() {
+        const text = $(this).val();
+        $('.card').each(function() {
+            const title = $(this).find('.small.header').text();
+            console.log(`${title} indexof ${text} = ${title.toLowerCase().indexOf(text.toLowerCase()) >= 0}`);
+            $(this).toggle(title.toLowerCase().indexOf(text.toLowerCase()) >= 0);
+        });
+    });
 });
 
 function onEdit(id, title) {

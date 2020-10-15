@@ -1,26 +1,19 @@
 {% extends "layouts/default.twig" %}
 
 {% block content %}
-    <h1>{{site.name}}</h1>
-
-    <div class="ui segment">
-        <div class="ui stackable grid">
-            <div class="eight wide column">
-                Sort
-                <select class="ui dropdown">
-                    <option value="alpha">Alphabetical</option>
-                    <option value="updated">Last Updated</option>
-                </select>
-            </div>
-            <div class="eight wide right aligned column">
-                <div class="ui labeled input">
-                    <input type="text" placeholder="Filter">
-                </div>
+    <div class="ui stackable grid">
+        <div class="eight wide column">
+        </div>
+        <div class="eight wide right aligned column">
+            <div class="ui labeled input">
+                <input id="filter" type="text" placeholder="Filter">
             </div>
         </div>
     </div>
 
+    {% if user and userRole == 3 %}
     <div id="addSeries" class="ui teal labeled icon button" style="margin-bottom: 10px;"><i class="plus icon"></i>Add New Series</div>
+    {% endif %}
 
     <div class="ui centered five stackable link cards">
         {% for serie in series %}
@@ -33,7 +26,7 @@
                 {% endif %}
             </a>
             {% if serie.is_complete %}
-            <div class="ui green right ribbon card-ribbon label">Completed</div>
+            <div class="ui teal right ribbon card-ribbon label">Completed</div>
             {% endif %}
             <div class="content">
                 <a class="content" href="/show-page/{{serie.id}}/{{serie.title|linkize}}">

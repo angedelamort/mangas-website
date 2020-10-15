@@ -1,5 +1,5 @@
 body {
-    background-color: #FFFFFF;
+    background-color: #c6f5ed;
 }
 
 .ui.menu .item img.logo {
@@ -24,9 +24,7 @@ body {
 }
 
 .bg-banner {
-    /*background-image: linear-gradient(to bottom, rgba(245, 246, 252, 0.52), rgba(117, 19, 93, 0.73));*/
     background-size: cover;
-    /*color: white;*/
     z-index: -1;
     position: absolute;
     top: 50px;
@@ -48,4 +46,8 @@ body {
 .ui.centered.statistics {
     align-items: center;
     justify-content: center;
+}
+
+.ui.inverted.menu {
+    background-color: #005461;
 }
