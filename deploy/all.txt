@@ -1,0 +1,3 @@
+put -R ../app /home/sauleilc/mangas.sauleil.com/app
+put -R ../public /home/sauleilc/mangas.sauleil.com/public
+put -R ../vendor /home/sauleilc/mangas.sauleil.com/vendor

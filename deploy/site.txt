@@ -1,0 +1,2 @@
+put -R ../app /home/sauleilc/mangas.sauleil.com/app
+put -R ../public /home/sauleilc/mangas.sauleil.com/public
