@@ -51,3 +51,13 @@ body {
 .ui.inverted.menu {
     background-color: #005461;
 }
+
+h1 {
+    color: #005461;
+}
+
+.ui.divided.items {
+    background-color: white;
+    padding: 5px;
+    border-radius: 3px;
+}

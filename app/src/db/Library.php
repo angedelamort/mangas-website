@@ -172,7 +172,7 @@ class Library {
     }
 
     public function addOrUpdateToScrapper($item) {
-        // TODO: Ugly hack for now -> use read mysql parameters and SunOrm!
+        // TODO: Ugly hack for now -> use real mysql parameters and SunOrm!
         foreach ($item as &$value) {
             if (is_string($value)) {
                 $value = $this->mysqli->real_escape_string($value);
@@ -183,13 +183,14 @@ class Library {
         $sql = "SELECT EXISTS(SELECT 1 FROM mangas_scrapper s WHERE $updateCondition);";
         $result = $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);
         $row = mysqli_fetch_array($result);
-        if ($row === 1) {
-            $sql = "UPDATE mangas_scrapper 
+
+        if (intval($row[0]) === 1) {
+            $sql = "UPDATE mangas_scrapper s
                     SET id='$item[id]', scrapper_id='$item[scrapper_id]', genres='$item[genres]', themes='$item[themes]', 
                         description='$item[description]', comment='$item[comment]', rating='$item[rating]', thumbnail='$item[thumbnail]', 
                         scrapper_mapping='$item[scrapper_mapping]'
                     WHERE $updateCondition
-                    LIMIT 1);";
+                    LIMIT 1;";
         } else {
             $sql = "INSERT INTO mangas_scrapper (id, scrapper_id, genres, themes, description, comment, rating, thumbnail, scrapper_mapping) 
                     VALUES ('$item[id]', '$item[scrapper_id]', '$item[genres]', '$item[themes]', 
@@ -199,7 +200,6 @@ class Library {
         $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);                
     }
 
-    // TODO: probably better to return the array.
     public function populateExtraDataToSeries($series) {
         $query = "SELECT * FROM mangas_scrapper s WHERE id=$series[id] ORDER BY FIELD(s.scrapper_id, $this->priorityString);";
         $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);

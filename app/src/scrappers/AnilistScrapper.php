@@ -2,9 +2,6 @@
 
 namespace mangaslib\scrappers;
 
-use mangaslib\scrappers\BaseScrapper;
-
-
 // Visit : https://anilist.co/graphiql
 class AnilistScrapper extends BaseScrapper {
 
@@ -65,9 +62,27 @@ class AnilistScrapper extends BaseScrapper {
             }
           }";
 
-          return $this->doRequest($query);
+        $result = $this->doRequest($query);
+        $json = json_decode($result, true);
+
+
+        $themes = [];
+        foreach ($json['data']['Media']['tags'] as $tag) {
+            $themes[] = $tag['name'];
+        }
+
+        return [
+            'genres' => join(',', $json['data']['Media']['genres']),
+            'themes' => join(',', $themes),
+            'description' => $json['data']['Media']['description'],
+            'comment' => $result,
+            'rating' => 0, // TODO: could get the MAL rating
+            'thumbnail' => $json['data']['Media']['coverImage']['large'],
+            'scrapper_id' => AnilistScrapper::ID,
+            'scrapper_mapping' => $id
+        ];
     }
-// TODO: set $title
+
     public function searchByTitle($title) {
         $query = "query {
             Page(page: 1, perPage: 20) {
@@ -90,10 +105,20 @@ class AnilistScrapper extends BaseScrapper {
           }
         }";
 
-        return $this->doRequest($query);
+        $request = $this->doRequest($query);
+        $result =  json_decode($request, true);
+        $items = [];
+        foreach ($result['data']['Page']['media'] as $media) {
+            $items[] = [
+                'id' => $media['id'],
+                'titles' => $media['title'],
+                'image' => $media['coverImage']['medium']
+            ];
+        }
+
+        return $items;
     }
 
-    // TODO: probably better by retuyrning the array...
     public static function AddExtraData(&$series, $json) {
       $result = json_decode($json, true);
 
@@ -105,6 +130,8 @@ class AnilistScrapper extends BaseScrapper {
       $series['status'] = $result['data']['Media']['status'];
       $series['tags'] = $result['data']['Media']['tags'];
       $series['titles'] = $result['data']['Media']['title'];
+
+      return $series;
     }
 
     private function doRequest($query) {

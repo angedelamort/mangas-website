@@ -46,7 +46,7 @@ See ``data/sql/*.sql`` scripts for easy imports.
 
 ### Current
 
-* Homepage Filters
+* Implementing the search anime news network and the second button.
 
 ### Next
 
@@ -54,4 +54,4 @@ See ``data/sql/*.sql`` scripts for easy imports.
 * login page with referer
 * make categories per language? with sections? Might be more interesting for browsing.
 * when click on AngeDeLaMort -> go to profile.
-* Fix databases.
+* Refactor the databases?

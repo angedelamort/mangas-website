@@ -78,7 +78,7 @@
     <!--TODO: use userIdRole(3) instead. Also need a way tyo access constants?-->
     {% if user and userRole == 3 %}
     <div class="container">
-        <div id="anilistUpdate" class="ui teal labeled icon button"><i class="redo icon"></i>Update using AniList</div>
+        <div id="anilistUpdate" class="ui teal labeled icon button"><i class="redo icon"></i>Update from scrappers</div>
     </div>
     {% endif %}
 
@@ -130,7 +130,8 @@
     <div class="content">
         <div class="ui action fluid input">
             <input id="textSearch" type="text" placeholder="Search..." value="{{series.title}}">
-            <button id="assignSearch" class="ui button">Search</button>
+            <button id="assignSearchAniList" class="ui button">AniList</button>
+            <button id="assignSearchAnn" class="ui button">Anime News Network</button>
         </div>
     </div>
     <div class="scrolling content">

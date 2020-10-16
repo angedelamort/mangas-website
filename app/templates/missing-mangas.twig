@@ -1,21 +1,23 @@
 {% extends "layouts/default.twig" %}
 
 {% block content %}
-    <h1>Missing Mangas</h1>
+    <div class="ui text container">
+        <h1>Missing Mangas</h1>
 
-    <div class="ui divided items">
-        {% for serie in series %}
-        <div class="item">
-            <div class="ui mini image">
-                <img src="{{ serie.data.thumbnail }}">
-            </div>
-            <div class="middle aligned content">
-                <div class="header">{{ serie.data.title }}</div>
-                <div class="description">
-                    {{ serie.missing | join(', ', ' and ') }}
+        <div class="ui divided items">
+            {% for serie in series %}
+            <div class="item">
+                <div class="ui mini image">
+                    <img src="{{ serie.data.thumbnail }}">
+                </div>
+                <div class="middle aligned content">
+                    <div class="header">{{ serie.data.title }}</div>
+                    <div class="description">
+                        {{ serie.missing | join(', ', ' and ') }}
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 {% endblock %}

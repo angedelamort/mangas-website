@@ -7,13 +7,21 @@ $( document ).ready(function() {
         $('#modalScrapper').modal('show');
     });
 
-    $('#assignSearch').click(async function() {
+    let searchFromScrapper = async function(scrapperId) {
         const text = $('#textSearch').val();
-        let response = await fetch(`/api/scrapper/anilist/search/${text}`);
+        let response = await fetch(`/api/scrapper/${scrapperId}/${text}`);
         if (response.ok) {
             $('.scrolling.content').html(await response.text());
-        } 
+        }
         // TODO: else -> display error in content!
+    };
+
+    $('#assignSearchAniList').click(async function() {
+        await searchFromScrapper('anilist');
+    });
+
+    $('#assignSearchAnn').click(async function() {
+        await searchFromScrapper('ann');
     });
 
     $('#addVolume').click(function() {
@@ -71,10 +79,17 @@ function OpenAddVolume() {
     }).modal('show');
 }
 
-async function onSelectedItem(itemId) {
+async function onSelectedItem(scrapperId, itemId) {
     $('#modalScrapper').modal('hide');
-    seriesId = $('#series').data('series-id');
-    let response = await fetch(`/api/scrapper/anilist/fetch/${itemId}?seriesId=${seriesId}`);
+    let seriesId = $('#series').data('series-id');
+    let response = await fetch(`/api/scrapper/${scrapperId}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        body: JSON.stringify({
+            externalId: itemId,
+            seriesId: seriesId
+        })
+    });
     if (response.ok) {
         document.location.reload();
     }
