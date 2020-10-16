@@ -2,10 +2,8 @@
 
 namespace mangaslib\db;
 
-// TODO: probably not a good dependency
-use mangaslib\extensions\LinkTwigExtension;
 use mangaslib\scrappers\AnilistScrapper;
-
+use mangaslib\utilities\SeoHelper;
 
 
 class Library {
@@ -114,12 +112,11 @@ class Library {
         $query = "INSERT INTO mangas_title (title) VALUES ('$titleEscaped')";
         $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
         $id = $this->mysqli->insert_id;
-        $twigExt = new LinkTwigExtension();
         return [
             'id' => $id,
             'title' => $title,
             'is_complete' => 0,
-            'uri' => "/show-page/$id/" . $twigExt->formatValue($title)
+            'uri' => "/show-page/$id/" . SeoHelper::normalizeTitle($title)
         ];
     }
 

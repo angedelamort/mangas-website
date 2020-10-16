@@ -18,7 +18,7 @@
     <div class="ui centered five stackable link cards">
         {% for serie in series %}
         <div class="card">
-            <a class="image" href="/show-page/{{serie.id}}/{{serie.title|linkize}}">
+            <a class="image" href="/show-page/{{serie.id}}/{{serie.title|normalize}}">
                 {% if serie.thumbnail %}
                 <img src="{{serie.thumbnail}}">
                 {% else %}
@@ -29,7 +29,7 @@
             <div class="ui teal right ribbon card-ribbon label">Completed</div>
             {% endif %}
             <div class="content">
-                <a class="content" href="/show-page/{{serie.id}}/{{serie.title|linkize}}">
+                <a class="content" href="/show-page/{{serie.id}}/{{serie.title|normalize}}">
                     <div class="ui center aligned blue small header">{{serie.title}}</div>
                 </a>
                 {% if user and userRole == 3 %}

@@ -46,12 +46,17 @@ See ``data/sql/*.sql`` scripts for easy imports.
 
 ### Current
 
-* Implementing the search anime news network and the second button.
 
 ### Next
 
-* fix all the todos (or transfer them here)
 * login page with referer
 * make categories per language? with sections? Might be more interesting for browsing.
 * when click on AngeDeLaMort -> go to profile.
-* Refactor the databases?
+* Refactor the databases
+    1. Modify the mangas_resources table in order to contains all the required fields for each page.
+    1. When scrapping, fill those fields if they are empty and download images as well
+    1. Modify the library to use the Mangas_resources table instead of the scrapper
+    1. Make an "Edit Screen" with a way to merge the data (could be: 
+        left side  = mangas_resources fields &
+        right side = mangas_scrappers tabs with button [<-])
+* Be able to choose the scrapper data more specifically. Right now it's just a priority list.

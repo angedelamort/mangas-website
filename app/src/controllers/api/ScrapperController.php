@@ -4,7 +4,6 @@ namespace mangaslib\controllers\api;
 
 use Exception;
 use mangaslib\db\Library;
-use mangaslib\scrappers\AnilistScrapper;
 use mangaslib\scrappers\ScrapperFactory;
 use mangaslib\utilities\SlimAuthorization;
 use Slim\Http\Request;

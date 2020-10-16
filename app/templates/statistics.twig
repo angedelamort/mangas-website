@@ -25,7 +25,7 @@
             {% for recent in volume.recentlyAdded %}
                 <div class="item">
                     <div class="ui tiny image">
-                        <a href="/show-page/{{ recent.series.id }}/{{ recent.series.title|linkize }}"><img src="{{ recent.series.thumbnail }}"></a>
+                        <a href="/show-page/{{ recent.series.id }}/{{ recent.series.title|normalize }}"><img src="{{ recent.series.thumbnail }}"></a>
                     </div>
                     <div class="middle aligned content">
                         <div class="header">{{ recent.series.title }}</div>
