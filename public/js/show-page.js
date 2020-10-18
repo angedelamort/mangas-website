@@ -29,6 +29,13 @@ $( document ).ready(function() {
         addedOnce = false;
         OpenAddVolume();
     });
+
+    $('#editSeries').click(function() {
+        $('#modalEditSeries').modal({
+
+        }).modal('show');
+        // TODO: show an edit button with a form
+    });
 });
 
 function InitAddModal(isAdd) {

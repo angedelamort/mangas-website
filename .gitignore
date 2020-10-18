@@ -1,6 +1,7 @@
 vendor/
 cache/
 logs/
+.init_cache
 
 #Idea
 .DS_Store

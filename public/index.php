@@ -2,6 +2,7 @@
 
 require('../vendor/autoload.php');
 
+use mangaslib\utilities\InitializationHelper;
 use sunframework\SunApp;
 use sunframework\SunAppConfig;
 use sunframework\twigExtensions\LibraryExtension;
@@ -29,11 +30,17 @@ LibraryExtension::addLibrary((new LibraryItem('datatable'))
  */
 $config = new SunAppConfig();
 
-// TODO: don't like the way we enable the routes.
-$config->activateRoutes([
-    'mangaslib\controllers' => dirname(__DIR__) . '/app/src/controllers',
-    'mangaslib\controllers\api' => dirname(__DIR__) . '/app/src/controllers/api'
-]);
+if (InitializationHelper::IsInitialized()) {
+    $config->activateRoutes([
+        'mangaslib\controllers' => dirname(__DIR__) . '/app/src/controllers',
+        'mangaslib\controllers\api' => dirname(__DIR__) . '/app/src/controllers/api'
+    ]);
+} else {
+    $config->activateRoutes([
+        'mangaslib\controllers\init' => dirname(__DIR__) . '/app/src/controllers/init'
+    ]);
+}
+
 $config->activateTwig(dirname(__DIR__) . '/app/templates', function($view) {
     $view->addExtension(new SiteTwigExtension());
     $view->addExtension(new LinkTwigExtension());

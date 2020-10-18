@@ -11,10 +11,28 @@ class Library {
     private $priorityString = "'ann', 'anilist'";
     private $mysqli;
 
+    public static function getDbConfig(){
+        return dirname(dirname(dirname(__DIR__))) . '/db.ini';
+    }
+
     function __construct() {
-        $file = dirname(dirname(dirname(__DIR__))) . '/db.ini';
+        $file = Library::getDbConfig();
         $ini = parse_ini_file($file, true);
         $this->open($ini);
+    }
+
+    public static function testConnection($uri, $username, $password, $dbName, $port) {
+        try {
+            $connection = @new \mysqli($uri, $username, $password, $dbName, intval($port));
+            if ($connection->connect_errno) {
+                return false;
+            }
+
+            return true;
+        }
+        catch (\Exception $e) {
+            return false;
+        }
     }
 
     private function open($connectionStrings) {
@@ -22,7 +40,11 @@ class Library {
             return;
         
         $default = $connectionStrings['default'];
-        $this->mysqli = new \mysqli($default['uri'], $default['username'], $default['password'], $default['dbname']);
+        $port = 3306;
+        if (array_key_exists('port', $default)) {
+            $port = intval($default['port']);
+        }
+        $this->mysqli = new \mysqli($default['uri'], $default['username'], $default['password'], $default['dbname'], $port);
 
         if ($this->mysqli->connect_errno) {
             throw new \Exception($this->mysqli->error);
@@ -231,6 +253,17 @@ class Library {
         $item = $result->fetch_assoc();
         $result->free();
         return $item;
+    }
+
+    public function addNewUser($username, $mail, $password, $role) {
+        $query = "INSERT INTO mangas_users (username, password, email, rolw, first_name, last_name)
+                  VALUES ('$username', '$password', '$mail', $role, '', '');";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        return true;
+    }
+
+    public function getUserCount() {
+        return $this->count('email', 'mangas_users');
     }
 
     public function getSeriesCount() {

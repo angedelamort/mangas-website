@@ -78,7 +78,8 @@
     <!--TODO: use userIdRole(3) instead. Also need a way tyo access constants?-->
     {% if user and userRole == 3 %}
     <div class="container">
-        <div id="anilistUpdate" class="ui teal labeled icon button"><i class="redo icon"></i>Update from scrappers</div>
+        <span id="editSeries" class="ui teal labeled icon button"><i class="edit icon"></i>Edit</span>
+        <span id="anilistUpdate" class="ui teal labeled icon button"><i class="redo icon"></i>Update from scrappers</span>
     </div>
     {% endif %}
 
@@ -94,33 +95,35 @@
         <div id="addVolume" class="ui teal labeled icon button"><i class="plus icon"></i>Add New Volume</div>
     </div>
     {% endif %}
-    <div class="ui grid">
-    {% for volume in volumes %}
-        <div class="eight wide column">
-            <div class="ui items">
-                <div class="item">
-                    <div class="ui tiny image">
-                        <img src="{{series.thumbnail}}">
-                    </div>
-                    <div class="middle aligned content">
-                        <div class="ui small header">Volume {{volume.volume}}</div>
-                        <div class="meta">
-                            <span>ISBN: </span>
-                            <span>{{volume.isbn}}</span>
+    <div class="ui segment">
+        <div class="ui grid">
+        {% for volume in volumes %}
+            <div class="eight wide column">
+                <div class="ui items">
+                    <div class="item">
+                        <div class="ui tiny image">
+                            <img src="{{series.thumbnail}}">
                         </div>
-                        <div class="meta">
-                            <span>Language: </span>
-                            <span>{{volume.lang}}</span>
-                        </div>
-                        <div class="meta right floated">
-                            <a onclick="onEdit('{{ volume.isbn }}', '{{ volume.volume }}', '{{ volume.lang }}');"><i class="ui edit icon"></i></a>
-                            <a onclick="onDelete('{{ volume.isbn }}', '{{ volume.volume }}');"><i class="ui trash alternate icon"></i></a>
+                        <div class="middle aligned content">
+                            <div class="ui small header">Volume {{volume.volume}}</div>
+                            <div class="meta">
+                                <span>ISBN: </span>
+                                <span>{{volume.isbn}}</span>
+                            </div>
+                            <div class="meta">
+                                <span>Language: </span>
+                                <span>{{volume.lang}}</span>
+                            </div>
+                            <div class="meta right floated">
+                                <a onclick="onEdit('{{ volume.isbn }}', '{{ volume.volume }}', '{{ volume.lang }}');"><i class="ui edit icon"></i></a>
+                                <a onclick="onDelete('{{ volume.isbn }}', '{{ volume.volume }}');"><i class="ui trash alternate icon"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        {% endfor %}
         </div>
-    {% endfor %}
     </div>
 </div>
 
@@ -192,6 +195,56 @@
     <div class="actions">
         <div class="ui negative button">No</div>
         <div class="ui positive button">Yes</div>
+    </div>
+</div>
+
+<div id="modalEditSeries" class="ui modal">
+    <div class="header">
+        Edit Series
+    </div>
+    <div class="content">
+        <form class="ui small form">
+            <div class="field">
+                <label>Title</label>
+                <input type="text" name="first-name" placeholder="First Name">
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>Genres</label>
+                    <input type="text" name="first-name" placeholder="First Name">
+                </div>
+                <div class="field">
+                    <label>themes</label>
+                    <input type="text" name="first-name" placeholder="First Name">
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>Number of Volumes</label>
+                    <input type="text" name="first-name" placeholder="First Name">
+                </div>
+                <div class="field">
+                    <label>Rating</label>
+                    <input type="text" name="first-name" placeholder="First Name">
+                </div>
+            </div>
+            <div class="field">
+                <label>Author</label>
+                <input type="text" name="first-name" placeholder="First Name">
+            </div>
+            <div class="field">
+                <label>Synopsis</label>
+                <textarea type="text" name="first-name" placeholder="First Name"></textarea>
+            </div>
+            <div class="field">
+                <label>comment</label>
+                <textarea type="text" name="first-name" placeholder="First Name"></textarea>
+            </div>
+        </form>
+    </div>
+    <div class="actions">
+        <div class="ui negative button">Cancel</div>
+        <div class="ui positive button">Save</div>
     </div>
 </div>
 {% endif %}

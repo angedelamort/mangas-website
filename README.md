@@ -17,15 +17,11 @@ docker-compose up
 
 ### Initialization
 
-By default, the database is empty. You will need to add a user manually if you
-want to be able to edit. Just create a simple script to create you password.
- 
-```PHP
-<?php
-echo hash('sha512', "your password here");
-```
+When the ``docker-compose`` starts, it will use the script(s) in ``data/sql/*`` to
+initialize the database. By default, the database is empty.
 
-If you want to be an admin, be sure to set the ``rolw`` to 1. (Yeah yeah, there's a typo)
+You will be prompted to create a new user. If you are on a remote server, you can
+either create a ``db.ini``. or use the wizard when loading the site for the first time.
 
 ## Deploying
 
@@ -38,25 +34,27 @@ cd deploy
 update
 ```
 
-After that, you will need to create a ``db.ini`` file on your host with the appropriate
-connection string for your database. You will also need to create the tables as well.
-See ``data/sql/*.sql`` scripts for easy imports.
+After that, as mentioned in the previous section, you will need a ``db.ini`` file on your host 
+with the appropriate connection string for your database. You will also need to create 
+the tables as well before running the site. See ``data/sql/*.sql`` scripts for easy imports.
+
+## Using the site
+
+TODO: describe the different sections and how to use them.
 
 ## TODO
 
 ### Current
 
+* Refactor the databases
+    * [ ] Modify the mangas_resources table in order to contains all the required fields for each page.
+    * [ ] When scrapping, fill those fields if they are empty and download images as well
+    * [ ] Modify the library to use the Mangas_resources table instead of the scrapper
+    * [ ] Make an "Edit Screen" with a way to merge the data (could be: 
+        left side  = mangas_resources fields &
+        right side = mangas_scrappers tabs with button [<-])
 
 ### Next
 
-* login page with referer
 * make categories per language? with sections? Might be more interesting for browsing.
-* when click on AngeDeLaMort -> go to profile.
-* Refactor the databases
-    1. Modify the mangas_resources table in order to contains all the required fields for each page.
-    1. When scrapping, fill those fields if they are empty and download images as well
-    1. Modify the library to use the Mangas_resources table instead of the scrapper
-    1. Make an "Edit Screen" with a way to merge the data (could be: 
-        left side  = mangas_resources fields &
-        right side = mangas_scrappers tabs with button [<-])
-* Be able to choose the scrapper data more specifically. Right now it's just a priority list.
+* when click on profile -> go to profile (change name/mail/password).
