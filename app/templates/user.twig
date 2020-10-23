@@ -1,0 +1,26 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+    <div class="ui text container">
+        <div class="ui segment">
+            <h1>Migration</h1>
+            <form action="/api/admin/cron/scrapper/anilist" method="post">
+                <input type="submit" class="ui button" value="Migrate Anilist to Series">
+            </form>
+        </div>
+    </div>
+
+    {% if messages|length > 0 %}
+        <div class="ui section">
+            <h2>logs</h2>
+            {% for message in messages %}
+                <div>{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <script>
+
+    </script>
+
+{% endblock %}

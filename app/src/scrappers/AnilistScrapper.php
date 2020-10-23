@@ -16,7 +16,6 @@ class AnilistScrapper extends BaseScrapper {
                 romaji
                 english
                 native
-                userPreferred
               },
               idMal,
               format,
@@ -95,7 +94,6 @@ class AnilistScrapper extends BaseScrapper {
                 romaji
                 english
                 native
-                userPreferred
               },
                 coverImage {
                 medium
@@ -119,6 +117,7 @@ class AnilistScrapper extends BaseScrapper {
         return $items;
     }
 
+    // TODO: remove me!!
     public static function AddExtraData(&$series, $json) {
       $result = json_decode($json, true);
 
@@ -132,6 +131,64 @@ class AnilistScrapper extends BaseScrapper {
       $series['titles'] = $result['data']['Media']['title'];
 
       return $series;
+    }
+
+    public function JsonToModel($json) {
+        $result = json_decode($json, true);
+        $item = [];
+
+        // TODO: create a place where we can see all those properties so they are not magic? maybe create a class?
+        $item['banner'] = $result['data']['Media']['bannerImage'];
+        $item['cover'] = $result['data']['Media']['coverImage']['extraLarge'];
+        $item['color'] = $result['data']['Media']['coverImage']['color'];
+        $item['cover'] = $result['data']['Media']['coverImage']['extraLarge'];
+        $item['chapters'] = $result['data']['Media']['chapters'];
+        $item['volumes'] = $result['data']['Media']['volumes'];
+        $item['status'] = $result['data']['Media']['status'];
+        $item['tags'] = $result['data']['Media']['tags'];
+        $item['titles'] = $result['data']['Media']['title'];
+        $item['countryOfOrigin'] = $result['data']['Media']['countryOfOrigin'];
+        $item['genres'] = $result['data']['Media']['genres'];
+        $item['isAdult'] = $result['data']['Media']['isAdult'];
+        $item['siteUrl'] = $result['data']['Media']['siteUrl'];
+        $item['description'] = $result['data']['Media']['description'];
+        $item['alternate_titles'] = $result['data']['Media']['title'];
+
+        if (is_array($item['alternate_titles']) && array_key_exists('userPreferred', $item['alternate_titles'])) {
+            unset($item['alternate_titles']['userPreferred']);
+        }
+
+        $item['staff'] = [];
+        // TODO: decode that:
+        /*
+         "staff": {
+        "edges": [
+          {
+            "id": 61911,
+            "role": "Story & Art",
+            "node": {
+              "id": 97623,
+              "name": {
+                "first": "Tsukasa",
+                "last": "Houjou",
+                "full": "Tsukasa Houjou",
+                "native": "北条司"
+              }
+            }
+          }
+        ]
+         */
+        /*if ($result['data']['Media']['staff']) {
+            foreach ($result['data']['Media']['staff'] as $staff) {
+                $item['staff'][] = [
+                    'id' => $staff['id'],
+                    'role' => $staff['role'],
+                    'name' => $staff['name']['full']
+                ];
+            }
+        }*/
+
+        return $item;
     }
 
     private function doRequest($query) {

@@ -17,4 +17,12 @@ abstract class BaseScrapper {
      * @return array A list of items containing the title: [ [string id, array titles, string thumbnail], ... ]
      */
     public abstract function searchByTitle($title);
+
+    /**
+     * Using the JSON returned bu the request and stored in the comment property, convert it
+     * into a standard array.
+     * @param $json
+     * @return array
+     */
+    public abstract function JsonToModel($json);
 }

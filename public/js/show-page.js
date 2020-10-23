@@ -31,6 +31,7 @@ $( document ).ready(function() {
     });
 
     $('#editSeries').click(function() {
+        // fill the values of the modal? probably  write it using javascript, will be a lot simpler than fetching all manually.
         $('#modalEditSeries').modal({
 
         }).modal('show');

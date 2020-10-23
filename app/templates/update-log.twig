@@ -1,0 +1,13 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+    <div class="ui text container">
+        <div class="ui segment">
+            <h1>Update Logs</h1>
+            <h2>Command: {{ command }}</h2>
+
+            {% for message in messages %}
+            <div>{{ message }}</div>
+            {% endof %}
+        </div>
+{% endblock %}

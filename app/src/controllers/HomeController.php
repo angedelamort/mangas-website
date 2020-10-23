@@ -14,7 +14,7 @@ class HomeController implements IRoutable {
     public function registerRoute(SunApp $app) {
         $app->get('/', function($request, $response, $args) {
             $lib = new Library();
-            $series = $lib->getAllSeries(true);
+            $series = $lib->getAllSeries();
             return $this->view->render($response, 'home.twig', [
                 'series' => $series
             ]);
@@ -81,13 +81,13 @@ class HomeController implements IRoutable {
         $app->get('/show-page/{id}[/{name}]', function(Request $request, Response $response, array $args) {
             $lib = new Library();
             $series = $lib->findSeriesById($args['id']);
-            $series = $lib->populateExtraDataToSeries($series);
-
             $volumes = $lib->getAllVolumes($args['id']);
+            $missingVolumes = $lib->getMissingMangasForSeries($args['id']);
 
             return $this->view->render($response, 'show-page.twig', [
                 "series" => $series,
-                "volumes" => $volumes
+                "volumes" => $volumes,
+                "missingVolumes" => $missingVolumes
             ]);
         });
     }

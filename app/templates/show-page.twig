@@ -30,15 +30,15 @@
                     </div>
                     <div style="margin-top: 5px;">
                         <div class="ui label">
-                            Completed
-                            {% if series.is_complete %}
-                                <div class="detail">yes</div>
+                            Status
+                            {% if series.library_status %}
+                                <div class="detail">completed</div>
                             {% else %}
-                                <div class="detail">no</div>
+                                <div class="detail">in-progress</div>
                             {% endif %}
                         </div>
                         <div class="ui label">
-                            Status
+                            Series Status
                             <div class="detail">{{series.status|lower}}</div>
                         </div>
                     </div>
@@ -58,8 +58,7 @@
                 <div>
                     <div class="text-small" style="margin-top: 15px;">Alternate Titles</div>
                     <div class="ui list" style="margin-top: 0px;">
-                        {% for lang, title in series.titles %}
-                            {% if lang != "userPreferred" and title %}
+                        {% for lang, title in series.alternate_titles %}
                             <div class="item">
                                 <i class="large language middle aligned icon"></i>
                                 <div class="content">
@@ -67,7 +66,6 @@
                                     <div class="description">{{title}}</div>
                                 </div>
                             </div>
-                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
@@ -83,9 +81,21 @@
     </div>
     {% endif %}
 
-    <div class="ui pink segment">
-        {{series.description|raw}}
-    </div>
+    {% if series.synopsis %}
+        <div class="ui pink segment">
+            {{series.synopsis|raw}}
+        </div>
+    {% endif %}
+    {% if series.comments %}
+        <div class="ui pink segment">
+            {{series.comments|raw}}
+        </div>
+    {% endif %}
+    {% if missingVolumes %}
+        <div class="ui pink segment">
+            <h4>Missing volumes: {{ missingVolumes|join(', ') }}</h4>
+        </div>
+    {% endif %}
 
     <h3 class="ui dividing header">Volumes</h3>
 
@@ -203,42 +213,73 @@
         Edit Series
     </div>
     <div class="content">
-        <form class="ui small form">
+        <form class="ui small form" method="post" action="/api/series/{{ series.id }}">
             <div class="field">
                 <label>Title</label>
-                <input type="text" name="first-name" placeholder="First Name">
+                <input type="text" name="title" placeholder="title" value="{{ series.title }}">
             </div>
+            <!-- TODO: add alternate titles -->
+            <!-- TODO: add short title -->
             <div class="two fields">
                 <div class="field">
                     <label>Genres</label>
-                    <input type="text" name="first-name" placeholder="First Name">
+                    <input type="text" name="genres" placeholder="genres" value="{{ series.genres|join(", ") }}">
                 </div>
                 <div class="field">
                     <label>themes</label>
-                    <input type="text" name="first-name" placeholder="First Name">
+                    <input type="text" name="themes" placeholder="themes" value="{{ series.themes|join(", ") }}">
+                </div>
+            </div>
+            <div class="three fields">
+                <div class="field">
+                    <label>Number of Volumes</label>
+                    <input type="text" name="volumes" placeholder="number" value="{{ series.volumes }}">
+                </div>
+                <div class="field">
+                    <label>Number of Chapters</label>
+                    <input type="text" name="chapters" placeholder="number" value="{{ series.chapters }}">
+                </div>
+                <div class="field">
+                    <label>Rating</label>
+                    <input type="text" name="rating" placeholder="rating 1-10" value="{{ series.rating }}">
                 </div>
             </div>
             <div class="two fields">
                 <div class="field">
-                    <label>Number of Volumes</label>
-                    <input type="text" name="first-name" placeholder="First Name">
+                    <label>Status</label>
+                    <div class="ui selection dropdown">
+                        <input type="hidden" name="is_complete" value="{{ series.library_status }}">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Status</div>
+                        <div class="menu">
+                            <div class="item" data-value="1">Completed</div>
+                            <div class="item" data-value="0">In-Progress</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="field">
-                    <label>Rating</label>
-                    <input type="text" name="first-name" placeholder="First Name">
+                    <label>Author</label>
+                    <input type="text" name="authors" placeholder="authors" value="{{ series.authors }}">
+                </div>
+            </div>
+            <!-- TODO: add Thumbnail (maybe show images in small rectangles) -->
+            <div class="two fields">
+                <div class="field">
+                    <label>Cover</label>
+                    <input type="text" name="cover" placeholder="uri" value="{{ series.cover }}">
+                </div>
+                <div class="field">
+                    <label>Banner</label>
+                    <input type="text" name="banner" placeholder="uri" value="{{ series.banner }}">
                 </div>
             </div>
             <div class="field">
-                <label>Author</label>
-                <input type="text" name="first-name" placeholder="First Name">
+                <label>Synopsis (HTML input)</label>
+                <textarea type="text" name="description" placeholder="enter text...">{{ series.synopsis }}</textarea>
             </div>
             <div class="field">
-                <label>Synopsis</label>
-                <textarea type="text" name="first-name" placeholder="First Name"></textarea>
-            </div>
-            <div class="field">
-                <label>comment</label>
-                <textarea type="text" name="first-name" placeholder="First Name"></textarea>
+                <label>Comments (HTML input)</label>
+                <textarea type="text" name="comment" placeholder="enter text...">{{ series.comments }}</textarea>
             </div>
         </form>
     </div>
@@ -247,6 +288,7 @@
         <div class="ui positive button">Save</div>
     </div>
 </div>
+
 {% endif %}
 {% endblock %}
 

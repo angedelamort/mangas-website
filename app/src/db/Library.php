@@ -2,13 +2,11 @@
 
 namespace mangaslib\db;
 
-use mangaslib\scrappers\AnilistScrapper;
-use mangaslib\utilities\SeoHelper;
 
+use mangaslib\utilities\SeoHelper;
 
 class Library {
 
-    private $priorityString = "'ann', 'anilist'";
     private $mysqli;
 
     public static function getDbConfig(){
@@ -61,133 +59,104 @@ class Library {
         }
     }
 
-    public function getAllSeries($addExtraInfo = false) {
-        $query = 'SELECT * FROM mangas_title ORDER BY title;';
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+    public function getAllSeries() {
+        $query = 'SELECT * FROM mangas_series ORDER BY title;';
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $items = $result->fetch_all(MYSQLI_ASSOC);
-
-        if ($addExtraInfo) {
-            $query = "SELECT t.id, t.title, s.thumbnail, t.is_complete, s.scrapper_id 
-                        FROM mangas_title t 
-                        LEFT OUTER JOIN mangas_scrapper s ON t.id = s.id
-                        ORDER BY t.title ASC, FIELD(s.scrapper_id, $this->priorityString);";
-            $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
-            $items = $result->fetch_all(MYSQLI_ASSOC);
-
-            // todo: make a more generic function that can be used.
-            function add($array, $index, $scrapperId) {
-                if ($scrapperId) {
-                    // TODO: move priority else where and make a better merge.
-                    $priorityTable = [
-                        'ann' => 1,
-                        'anilist' => 2
-                    ];
-                    $priority = $priorityTable[$scrapperId];
-                    $newItem = ['i' => $index, 'p' => $priority];
-
-                    if (count($array) == 0){
-                        $array[] = $newItem;
-                    } else {
-                        if ($priority > $array[0]['p']) {
-                            array_unshift($array , $newItem);
-                        } else {
-                            $array[] = $newItem;
-                        }
-                    }
-                }
-
-                return $array;
-            }
-
-            // TODO: with the order by field -> just need to override the fields properly.
-            // @see populateExtraDataToSeries()
-
-            // find duplicates
-            $dupplicates = [];
-            for ($i = 0; $i < count($items); $i++) {
-                $curr = $items[$i];
-                $id = $curr['id'];
-                $dupplicates[$id] = add(array_key_exists($id, $dupplicates) ? $dupplicates[$id] : [], $i, $curr['scrapper_id']);
-            }
-            // and remove them
-            foreach ($dupplicates as $dupItems) {
-                for ($i = 1; $i < count($dupItems); $i++) {
-                    $index = $dupItems[$i]['i'];
-                    unset($items[$index]);
-                }
-            }
-
-            $result->free();
-            return $items;
-        }
-        else {
-            $query = 'SELECT * FROM mangas_title ORDER BY title;';
-            $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
-            $items = $result->fetch_all(MYSQLI_ASSOC);
-            $result->free();
-            return $items;
-        }
+        // TODO: call prepareSeries for each items
+        $result->free();
+        return $items;
     }
 
+    // TODO: do we still need this?
+    private function prepareSeries($series) {
+        if ($series['genres']) $series['genres'] = preg_split( "/[ ,;]/", $series['genres'], -1, PREG_SPLIT_NO_EMPTY);
+        if ($series['themes']) $series['themes'] = preg_split( "/[ ,;]/", $series['themes'], -1, PREG_SPLIT_NO_EMPTY);
+        if ($series['alternate_titles']) $series['alternate_titles'] = json_decode($series['alternate_titles'], true);
+        return $series;
+    }
+
+    // TODO: probably need more fields like short-name
     public function addSeries($title) {
         $titleEscaped = $this->mysqli->real_escape_string($title);
-        $query = "INSERT INTO mangas_title (title) VALUES ('$titleEscaped')";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $query = "INSERT INTO mangas_series (title) VALUES ('$titleEscaped')";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $id = $this->mysqli->insert_id;
         return [
             'id' => $id,
             'title' => $title,
-            'is_complete' => 0,
+            'library_status' => 0,
             'uri' => "/show-page/$id/" . SeoHelper::normalizeTitle($title)
         ];
     }
 
     public function deleteSeries($id) {
-        $query = "DELETE FROM mangas_title WHERE id=$id LIMIT 1;";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $query = "DELETE FROM mangas_series WHERE id=$id LIMIT 1;";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
     }
 
-    public function UpdateSeries($id, $title) {
-        $sql = "UPDATE mangas_title
-                SET title = '$title'
-                WHERE id=$id LIMIT 1;";
-        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);
-    }
-
-    public function findSeriesById($id) {
-        $query = "SELECT * FROM mangas_title WHERE id = $id;";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+    public function getSeries($id) {
+        $query = "SELECT * FROM mangas_series WHERE id=$id;";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $items = $result->fetch_assoc();
         $result->free();
         return $items;
     }
 
+    // TODO: probably handle an object and only update the present values.
+    public function updateSeries($id, $seriesModel) {
+        if (!is_array($seriesModel) || count($seriesModel) == 0) {
+            return 0;
+        }
+
+        array_walk($seriesModel, function(&$value, $key) {
+            if (is_string($value)) {
+                $value = $this->mysqli->real_escape_string($value);
+            }
+            $value="$key='$value'";
+        });
+        $updateString = implode(', ', $seriesModel);
+        $sql = "UPDATE mangas_series
+                SET $updateString
+                WHERE id=$id LIMIT 1;";
+        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
+        return 1;
+    }
+
+    public function findSeriesById($id) {
+        $query = "SELECT * FROM mangas_series WHERE id = $id;";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
+        $items = $result->fetch_assoc();
+        $result->free();
+        return $this->prepareSeries($items);
+    }
+
     public function getAllVolumes($seriesId, $ordering = "DESC") {
-        $query = "SELECT * FROM mangas_info WHERE title_id = $seriesId ORDER BY lang, volume $ordering;";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $query = "SELECT * FROM mangas_volume WHERE title_id = $seriesId ORDER BY lang, volume $ordering;";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $items = $result->fetch_all(MYSQLI_ASSOC);
         $result->free();
         return $items;
     }
 
     public function AddVolume($id, $isbn, $volume, $lang) {
-        $sql = "INSERT INTO mangas_info (isbn, lang, volume, title_id) VALUES('$isbn','$lang', $volume , $id);";
-        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);
+        $sql = "INSERT INTO mangas_volume (isbn, lang, volume, title_id) VALUES('$isbn','$lang', $volume , $id);";
+        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
         //$result->free(); <----- crashes for some mysterious reason
     }
 
     public function deleteVolume($isbn) {
-        $sql = "DELETE FROM mangas_info WHERE isbn='$isbn' LIMIT 1;";
-        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);
+        $sql = "DELETE FROM mangas_volume WHERE isbn='$isbn' LIMIT 1;";
+        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
     }
 
     public function updateVolume($isbn, $isbnNew, $volume, $lang) {
-        $sql = "UPDATE mangas_info
+        $sql = "UPDATE mangas_volume
                 SET isbn = '$isbnNew',
                     lang = '$lang',
                     volume = $volume
                 WHERE isbn='$isbn' LIMIT 1;";
-        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);
+        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
     }
 
     public function addOrUpdateToScrapper($item) {
@@ -200,7 +169,7 @@ class Library {
 
         $updateCondition = "s.id = '$item[id]' AND s.scrapper_id = '$item[scrapper_id]'";
         $sql = "SELECT EXISTS(SELECT 1 FROM mangas_scrapper s WHERE $updateCondition);";
-        $result = $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);
+        $result = $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
         $row = mysqli_fetch_array($result);
 
         if (intval($row[0]) === 1) {
@@ -216,31 +185,14 @@ class Library {
                             '$item[description]', '$item[comment]', '$item[rating]', '$item[thumbnail]', '$item[scrapper_mapping]');";
         }
 
-        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error);                
+        $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
     }
 
-    public function populateExtraDataToSeries($series) {
-        $query = "SELECT * FROM mangas_scrapper s WHERE id=$series[id] ORDER BY FIELD(s.scrapper_id, $this->priorityString);";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
-        $items = $result->fetch_all(MYSQLI_ASSOC);
-
-        foreach ($items as $item) {
-            if (strlen($item['genres']) > 0) $series['genres'] = explode(',', $item['genres']);
-            if (strlen($item['themes']) > 0) $series['themes'] = explode(',', $item['themes']);
-            if (strlen($item['description']) > 0) $series['description'] = $item['description'];
-            if (strlen($item['thumbnail']) > 0) $series['thumbnail'] = $item['thumbnail'];
-            if (strlen($item['thumbnail']) > 0) $series['cover'] = $item['thumbnail'];
-
-            switch ($item['scrapper_id']) {
-                case AnilistScrapper::ID:
-                    AnilistScrapper::AddExtraData($series, $item['comment']);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return $series;
+    public function getScrapperData($scrapperId, $seriesId) {
+        $sql = "SELECT * FROM mangas_scrapper WHERE id='$seriesId' AND scrapper_id='$scrapperId';";
+        $result = $this->mysqli->query($sql) or $this->throwException($this->mysqli->error, $sql);
+        $item = $result->fetch_assoc();
+        return $item;
     }
 
     public function findUser($usernameOrEmail, $password) {
@@ -249,7 +201,7 @@ class Library {
             $cond = "username='$usernameOrEmail'";
         }
         $query = "SELECT username, email, first_name, last_name, rolw FROM mangas_users WHERE $cond AND password='$password';";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $item = $result->fetch_assoc();
         $result->free();
         return $item;
@@ -258,7 +210,7 @@ class Library {
     public function addNewUser($username, $mail, $password, $role) {
         $query = "INSERT INTO mangas_users (username, password, email, rolw, first_name, last_name)
                   VALUES ('$username', '$password', '$mail', $role, '', '');";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         return true;
     }
 
@@ -267,24 +219,28 @@ class Library {
     }
 
     public function getSeriesCount() {
-        return $this->count('id', 'mangas_title');
+        return $this->count('id', 'mangas_series');
     }
 
     public function getVolumeCount() {
-        return $this->count('isbn', 'mangas_info');
+        return $this->count('isbn', 'mangas_volume');
     }
 
     public function getSeriesCompletedCount() {
-        return $this->count('id', 'mangas_title', 'is_complete=1');
+        return $this->count('id', 'mangas_series', 'library_status=1');
+    }
+
+    public function isSeriesCompleted($titleId) {
+        return $this->count('id', 'mangas_series', "library_status=1 AND id=$titleId");
     }
 
     public function getLatestVolumes($count = 5) {
         error_log("$count");
-        $query = "SELECT * FROM mangas_info ORDER BY created_date DESC LIMIT $count;";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $query = "SELECT * FROM mangas_volume ORDER BY created_date DESC LIMIT $count;";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $items = $result->fetch_all(MYSQLI_ASSOC);
 
-        $series = $this->getAllSeries(true);
+        $series = $this->getAllSeries();
         $map = [];
         foreach ($series as $s) {
             $map[$s['id']] = $s;
@@ -303,23 +259,26 @@ class Library {
     }
 
     public function getMissingMangas() {
-        $titles = $this->getAllSeries(true);
+        $titles = $this->getAllSeries();
         $items = [];
         foreach ($titles as $titleItem) {
             $titleId = $titleItem['id'];
-            $items[] = [
-                'id' => $titleId,
-                'missing' => $this->getMissingMangasForSeries($titleId),
-                'data' => $titleItem
-            ];
+            $isCompleted = intval($titleItem['library_status']);
+            if (!$isCompleted) {
+                $items[] = [
+                    'id' => $titleId,
+                    'missing' => $this->getMissingMangasForSeriesExt($titleId),
+                    'data' => $titleItem
+                ];
+            }
         }
 
         return $items;
     }
 
-    private function getMissingMangasForSeries($titleId) {
-        $query = "SELECT volume FROM mangas_info WHERE title_id=$titleId ORDER BY volume;";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+    private function getMissingMangasForSeriesExt($titleId, $totalVolumes) {
+        $query = "SELECT volume FROM mangas_volume WHERE title_id=$titleId ORDER BY volume;";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $volumes = $result->fetch_all(MYSQLI_ASSOC);
         $missingVolumes = [];
         $counter = 1;
@@ -334,19 +293,32 @@ class Library {
                 $counter += 1;
         }
 
-        $missingVolumes[$counter] = true; // add last item
+        // add item if new one is missing.
+        if ($totalVolumes == 0 || $counter < $totalVolumes) {
+            $missingVolumes[$counter] = true;
+        }
+
         return array_keys($missingVolumes);
+    }
+
+    public function getMissingMangasForSeries($titleId) {
+        $series = $this->getSeries($titleId);
+        if (intval($series['library_status']) > 0) {
+            return null;
+        }
+
+        return $this->getMissingMangasForSeriesExt($titleId, intval($series['volumes']));
     }
 
     private function count($field, $table, $where = '1') {
         $query = "SELECT COUNT($field) as total FROM $table WHERE $where;";
-        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error);
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $item = $result->fetch_assoc();
         return $item['total'];
     }
 
-    private function throwException($message) {
-        error_log($message);
+    private function throwException($message, $query) {
+        error_log("QUERY-> $query\n\n$message");
         throw new \Exception($message);
     }
 }

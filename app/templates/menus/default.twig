@@ -12,7 +12,7 @@
     </div>
     <div class="right menu">
     {% if user %}
-      <div class="header item">{{user.username}}</div> 
+      <a class="header item" href="/user">{{user.username}}</a>
       <a class="item" href="/logout">Log Out</a>
     {% else %}
       <a class="item" href="/login">Log In</a>
