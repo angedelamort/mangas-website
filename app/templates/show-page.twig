@@ -39,7 +39,13 @@
                         </div>
                         <div class="ui label">
                             Series Status
-                            <div class="detail">{{series.status|lower}}</div>
+                            <div class="detail">
+                                {% if series.series_status %}
+                                    <div class="detail">completed</div>
+                                {% else %}
+                                    <div class="detail">in-progress</div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -210,16 +216,28 @@
 
 <div id="modalEditSeries" class="ui modal">
     <div class="header">
-        Edit Series
+        {{ series.title }}
     </div>
     <div class="content">
         <form class="ui small form" method="post" action="/api/series/{{ series.id }}">
-            <div class="field">
-                <label>Title</label>
-                <input type="text" name="title" placeholder="title" value="{{ series.title }}">
+            <input type="hidden" name="id" value="{{ series.id }}">
+            <div class="fields">
+                <div class="ten wide field">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="title" value="{{ series.title }}">
+                </div>
+                <div class="three wide field">
+                    <label>Short Title</label>
+                    <input type="text" name="short_name" placeholder="short title" value="{{ series.short_name }}">
+                </div>
+                <div class="three field">
+                    <label>Library Status</label>
+                    <select class="ui dropdown" name="library_status">
+                        <option value="0" {% if series.library_status == 0 %}selected{% endif %}>In-Progress</option>
+                        <option value="1" {% if series.library_status == 1 %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
             </div>
-            <!-- TODO: add alternate titles -->
-            <!-- TODO: add short title -->
             <div class="two fields">
                 <div class="field">
                     <label>Genres</label>
@@ -230,7 +248,7 @@
                     <input type="text" name="themes" placeholder="themes" value="{{ series.themes|join(", ") }}">
                 </div>
             </div>
-            <div class="three fields">
+            <div class="four fields">
                 <div class="field">
                     <label>Number of Volumes</label>
                     <input type="text" name="volumes" placeholder="number" value="{{ series.volumes }}">
@@ -240,30 +258,30 @@
                     <input type="text" name="chapters" placeholder="number" value="{{ series.chapters }}">
                 </div>
                 <div class="field">
+                    <label>Series Status</label>
+                    <select class="ui dropdown" name="series_status">
+                        <option value="0" {% if series.series_status == 0 %}selected{% endif %}>In-Progress</option>
+                        <option value="1" {% if series.series_status == 1 %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+                <div class="field">
                     <label>Rating</label>
-                    <input type="text" name="rating" placeholder="rating 1-10" value="{{ series.rating }}">
+                    <input type="number" name="rating" placeholder="rating 1-10" value="{{ series.rating }}">
                 </div>
             </div>
-            <div class="two fields">
-                <div class="field">
-                    <label>Status</label>
-                    <div class="ui selection dropdown">
-                        <input type="hidden" name="is_complete" value="{{ series.library_status }}">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">Status</div>
-                        <div class="menu">
-                            <div class="item" data-value="1">Completed</div>
-                            <div class="item" data-value="0">In-Progress</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="field">
-                    <label>Author</label>
+            <!-- TODO: add alternate titles -->
+            <div class="fields">
+                <div class="sixteen wide field">
+                    <label>Authors</label>
                     <input type="text" name="authors" placeholder="authors" value="{{ series.authors }}">
                 </div>
             </div>
             <!-- TODO: add Thumbnail (maybe show images in small rectangles) -->
-            <div class="two fields">
+            <div class="three fields">
+                <div class="field">
+                    <label>Thumbnail</label>
+                    <input type="text" name="thumbnail" placeholder="uri" value="{{ series.thumbnail }}">
+                </div>
                 <div class="field">
                     <label>Cover</label>
                     <input type="text" name="cover" placeholder="uri" value="{{ series.cover }}">
@@ -275,11 +293,11 @@
             </div>
             <div class="field">
                 <label>Synopsis (HTML input)</label>
-                <textarea type="text" name="description" placeholder="enter text...">{{ series.synopsis }}</textarea>
+                <textarea type="text" name="synopsis" placeholder="enter text...">{{ series.synopsis }}</textarea>
             </div>
             <div class="field">
                 <label>Comments (HTML input)</label>
-                <textarea type="text" name="comment" placeholder="enter text...">{{ series.comments }}</textarea>
+                <textarea type="text" name="comments" placeholder="enter text...">{{ series.comments }}</textarea>
             </div>
         </form>
     </div>

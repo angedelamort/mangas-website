@@ -32,6 +32,7 @@ class AdminController implements IRoutable {
                 if (!$item['cover'] && $model['cover']) $toUpdate['cover'] = $model['cover'];
                 if (!$item['banner'] && $model['banner']) $toUpdate['banner'] = $model['banner'];
                 if (!$item['alternate_titles'] && $model['alternate_titles']) $toUpdate['alternate_titles'] = json_encode($model['alternate_titles']);
+                if (!$item['series_status'] && $model['status']) $toUpdate['series_status'] = ($model['status'] == 'FINISHED') ? 1 : 0;
 
                 $result = $lib->updateSeries($item['id'], $toUpdate);
                 $messages[] = ($result) ? "...database updated $item[title]" : "...nothing to update";

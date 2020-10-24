@@ -35,10 +35,8 @@ class SeriesController implements IRoutable {
 
         $app->patch('/api/series/{id}', function(Request $request, Response $response, $args) {
             $lib = new Library();
-            // TODO: find the attributes and if exists, update them in the update-series
-            $lib->updateSeries($args['id'], [
-                'title' => $request->getParsedBodyParam('title')
-            ]);
+            error_log($args['id']);
+            $lib->updateSeries($args['id'], $request->getParsedBody());
             return $response->withJson(['result' => 'ok'], 200);
         })->add(SlimAuthorization::IsAdmin());
 

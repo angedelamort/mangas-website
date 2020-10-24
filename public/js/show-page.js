@@ -1,5 +1,6 @@
+// TODO: create a new javascript file in order to hide the admin calls.
 
-var addedOnce = false;
+let addedOnce = false;
 
 $( document ).ready(function() {
     
@@ -33,7 +34,24 @@ $( document ).ready(function() {
     $('#editSeries').click(function() {
         // fill the values of the modal? probably  write it using javascript, will be a lot simpler than fetching all manually.
         $('#modalEditSeries').modal({
-
+            onApprove: async function() {
+                let $form = $('#modalEditSeries').find('form');
+                let json = $form.serializeArray().reduce(function (obj, item) {
+                    obj[item.name] = item.value;
+                    return obj;
+                }, {});
+                let result = await fetch(`/api/series/${json.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-type": "application/json; charset=UTF-8" },
+                    body: JSON.stringify(json)
+                });
+                if (result.ok) {
+                    document.location.reload();
+                } else {
+                    // TODO: write an error message somewhere in the page.
+                    console.log('error updating!');
+                }
+            }
         }).modal('show');
         // TODO: show an edit button with a form
     });

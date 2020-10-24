@@ -109,11 +109,19 @@ class Library {
             return 0;
         }
 
+        if (array_key_exists('id', $seriesModel)) {
+            unset($seriesModel['id']);
+        }
+        if (array_key_exists('rating', $seriesModel) && !$seriesModel['rating']) {
+            unset($seriesModel['rating']);
+        }
+
+        // TODO: kind of hackish and would need a real model since we can input any fields here.
         array_walk($seriesModel, function(&$value, $key) {
             if (is_string($value)) {
                 $value = $this->mysqli->real_escape_string($value);
             }
-            $value="$key='$value'";
+            $value="$key=\"$value\"";
         });
         $updateString = implode(', ', $seriesModel);
         $sql = "UPDATE mangas_series
@@ -318,7 +326,12 @@ class Library {
     }
 
     private function throwException($message, $query) {
-        error_log("QUERY-> $query\n\n$message");
+        error_log("QUERY->");
+        $maxLen = 800;
+        for ($i = 0; $i < strlen($query); $i += $maxLen){
+            error_log(substr($query, $i, $i + $maxLen));
+        }
+        error_log("ERROR MESSAGE-> $message");
         throw new \Exception($message);
     }
 }
