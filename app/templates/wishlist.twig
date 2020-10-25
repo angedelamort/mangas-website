@@ -1,0 +1,23 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+
+    <div class="ui text container">
+        <h1>Wishlist</h1>
+
+        <div class="ui divided items">
+            {% for item in wishlist.items %}
+                <div class="item">
+                    <div class="ui mini image">
+                        <img src="/images/wishlist-icon.png">
+                    </div>
+                    <div class="middle aligned content">
+                        <div class="header">{{ item.title }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+{% endblock %}

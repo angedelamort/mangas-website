@@ -40,3 +40,7 @@ ALTER TABLE mangas_info CHARACTER SET = utf8, RENAME TO mangas_volume;
 
 # Remove unused table
 DROP TABLE mangas_ressources;
+
+## Add wishlist to user and change typo
+ALTER TABLE mangas_users ADD COLUMN wishlist TEXT NULL AFTER `rolw`;
+ALTER TABLE mangas_users CHANGE COLUMN rolw role INT(11) NOT NULL;

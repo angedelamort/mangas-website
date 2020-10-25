@@ -313,5 +313,7 @@
 
 {% block js %}
     {{parent()}}
+    {% if user and userRole == 3 %}
     {{js('/js/show-page.js')}}
+    {% endif %}
 {% endblock %}

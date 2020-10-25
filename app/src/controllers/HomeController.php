@@ -60,7 +60,7 @@ class HomeController implements IRoutable {
             $user = $lib->findUser($email, $password);
 
             $app->getAuthManager()->setUser($user);
-            if ($user['rolw'] == 1) {
+            if ($user['role'] == 1) {
                 $app->getAuthManager()->setUserRoles(UserSession::ROLE_ADMIN);
             }
 
@@ -88,6 +88,16 @@ class HomeController implements IRoutable {
                 "series" => $series,
                 "volumes" => $volumes,
                 "missingVolumes" => $missingVolumes
+            ]);
+        });
+
+        $app->get('/wishlist', function(Request $request, Response $response, $args) use ($app) {
+            $session = new UserSession();
+            $email = $session->getUser()['email'];
+            $lib = new Library();
+
+            return $this->view->render($response, 'wishlist.twig', [
+                "wishlist" => $lib->getWishlist($email)
             ]);
         });
     }

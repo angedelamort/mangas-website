@@ -1,5 +1,3 @@
-// TODO: create a new javascript file in order to hide the admin calls.
-
 let addedOnce = false;
 
 $( document ).ready(function() {

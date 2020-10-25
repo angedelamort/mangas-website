@@ -208,15 +208,32 @@ class Library {
         if (strrpos($usernameOrEmail, "@") === FALSE) {
             $cond = "username='$usernameOrEmail'";
         }
-        $query = "SELECT username, email, first_name, last_name, rolw FROM mangas_users WHERE $cond AND password='$password';";
+        $query = "SELECT username, email, first_name, last_name, role FROM mangas_users WHERE $cond AND password='$password';";
         $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $item = $result->fetch_assoc();
         $result->free();
         return $item;
     }
 
+    public function getWishlist($email) {
+        $query = "SELECT wishlist FROM mangas_users WHERE email='$email';";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
+        $item = $result->fetch_assoc();
+        $result->free();
+        if ($item['wishlist']) {
+            return json_decode($item['wishlist'], true);
+        }
+        return [];
+    }
+
+    public function updateWishlist(string $email, array $wishlist) {
+        $wishlist = $this->mysqli->real_escape_string(json_encode($wishlist));
+        $query = "UPDATE mangas_users SET wishlist=\"$wishlist\" WHERE email='$email';";
+        $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
+    }
+
     public function addNewUser($username, $mail, $password, $role) {
-        $query = "INSERT INTO mangas_users (username, password, email, rolw, first_name, last_name)
+        $query = "INSERT INTO mangas_users (username, password, email, role, first_name, last_name)
                   VALUES ('$username', '$password', '$mail', $role, '', '');";
         $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         return true;

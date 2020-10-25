@@ -46,21 +46,18 @@ TODO: describe the different sections and how to use them.
 
 ### Current
 
-* split file in 2 for show_page -> don't wat admin in normal.
 * Make Models (Series, Volume, etc) so we can remove "library.php" and have self contained objects.
 
 
 ### Next
 
-* uploader assets manually
+* Make a merge screen when updating from scrapper? Probably go to another page already filled with 2 rows?
+    * If doing that, we can probably delete the mangas_scrapper table.
+* Probably remove all FORM-SUBMIT and replace with real API calls.
+* uploader assets manually (in the edit windows)
 * make categories per language? with sections? Might be more interesting for browsing.
-* when click on profile -> go to profile (change name/mail/password).
-* Add les tags (table?)
+* when click on profile -> (change name/mail/password).
 * When scrapping, fill those fields if they are empty and download images as well
-* Make an "Edit Screen" with a way to merge the data (could be: 
-    left side  = mangas_resources fields &
-    right side = mangas_scrappers tabs with button [<-])
-    or dropdown with scrapper info.
 
 ### Wish list
 * One Punch Man

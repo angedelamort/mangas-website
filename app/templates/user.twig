@@ -8,6 +8,16 @@
                 <input type="submit" class="ui button" value="Migrate Anilist to Series">
             </form>
         </div>
+
+        <div class="ui segment">
+            <h1>Wishlist</h1>
+            <form class="ui form">
+                <div class="field" action="/api/todo" method="post">
+                    <textarea rows="16">{{ wishlist }}</textarea>
+                    <div class="ui button" onclick="saveWishlist($(this).prev());">Save</div>
+                </div>
+            </form>
+        </div>
     </div>
 
     {% if messages|length > 0 %}
@@ -20,7 +30,19 @@
     {% endif %}
 
     <script>
-
+        async function saveWishlist(item) {
+            let result = await fetch(`/api/user/{{ user.email }}`, {
+                method: "PATCH",
+                headers: { "Content-type": "application/json; charset=UTF-8" },
+                body: $(item).val()
+            });
+            if (result.ok) {
+                document.location.reload();
+            } else {
+                // TODO: write an error message somewhere in the page.
+                console.log('error updating!');
+            }
+        }
     </script>
 
 {% endblock %}
