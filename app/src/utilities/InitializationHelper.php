@@ -3,6 +3,7 @@
 namespace mangaslib\utilities;
 
 use mangaslib\db\Library;
+use mangaslib\models\UserModel;
 
 class InitializationHelper {
 
@@ -24,10 +25,8 @@ class InitializationHelper {
     }
 
     public static function HasAdmin() {
-        if (InitializationHelper::IsDatabaseInitialized())
-        {
-            $library = new Library();
-            return $library->getUserCount();
+        if (InitializationHelper::IsDatabaseInitialized()) {
+            return UserModel::count();
         }
         return false;
     }

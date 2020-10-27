@@ -3,13 +3,6 @@
 {% block content %}
     <div class="ui text container">
         <div class="ui segment">
-            <h1>Migration</h1>
-            <form action="/api/admin/cron/scrapper/anilist" method="post">
-                <input type="submit" class="ui button" value="Migrate Anilist to Series">
-            </form>
-        </div>
-
-        <div class="ui segment">
             <h1>Wishlist</h1>
             <form class="ui form">
                 <div class="field" action="/api/todo" method="post">
@@ -31,7 +24,7 @@
 
     <script>
         async function saveWishlist(item) {
-            let result = await fetch(`/api/user/{{ user.email }}`, {
+            let result = await fetch(`/user/wishlist`, {
                 method: "PATCH",
                 headers: { "Content-type": "application/json; charset=UTF-8" },
                 body: $(item).val()

@@ -5,15 +5,15 @@
         <h1>Missing Mangas</h1>
 
         <div class="ui divided items">
-            {% for serie in series %}
+            {% for series in missingSeries %}
             <div class="item">
                 <div class="ui mini image">
-                    <img src="{{ serie.data.thumbnail }}">
+                    <img src="{{ series.thumbnail }}">
                 </div>
                 <div class="middle aligned content">
-                    <div class="header">{{ serie.data.title }}</div>
+                    <div class="header">{{ series.title }}</div>
                     <div class="description">
-                        {{ serie.missing | join(', ', ' and ') }}
+                        {{ series.missingVolumes | join(', ', ' and ') }}
                     </div>
                 </div>
             </div>

@@ -58,14 +58,5 @@ TODO: describe the different sections and how to use them.
 * make categories per language? with sections? Might be more interesting for browsing.
 * when click on profile -> (change name/mail/password).
 * When scrapping, fill those fields if they are empty and download images as well
-
-### Wish list
-* One Punch Man
-* Demon Slayer - Kimestu no Yaiba
-* Berserk
-* X
-* Jojos (new series)
-* Hikaru no Go
-* Hunter x Hunter
-* Naruto
-* Yu-gi-Oh
+* recreate an initialization script instead of having updates.
+    * remove migration button

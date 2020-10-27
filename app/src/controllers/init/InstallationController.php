@@ -3,7 +3,10 @@
 namespace mangaslib\controllers\init;
 
 use mangaslib\db\Library;
+use mangaslib\models\UserModel;
 use mangaslib\utilities\InitializationHelper;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use sunframework\route\IRoutable;
 use sunframework\SunApp;
 
@@ -13,7 +16,7 @@ class InstallationController implements IRoutable {
      * @param SunApp $app The current slim app
      */
     public function registerRoute(SunApp $app) {
-        $app->get('/', function($request, $response, $args) {
+        $app->get('/', function(Request $request, Response $response, $args) {
             $error = $request->getQueryParam('error');
             switch ($error) {
                 case 'db':
@@ -30,7 +33,7 @@ class InstallationController implements IRoutable {
             ]);
         });
 
-        $app->post('/db', function($request, $response, $args) {
+        $app->post('/db', function(Request $request, Response $response, $args) {
             $uri = $request->getParsedBodyParam('uri');
             $dbName = $request->getParsedBodyParam('dbName');
             $port = $request->getParsedBodyParam('port');
@@ -45,15 +48,16 @@ class InstallationController implements IRoutable {
             }
         });
 
-        $app->post('/user', function($request, $response, $args) {
-            // TODO: check if not empty and blablabla
+        $app->post('/user', function(Request $request, Response $response, $args) {
             $error = "";
             try{
-                $username = $request->getParsedBodyParam('username');
-                $mail = $request->getParsedBodyParam('email');
-                $password =  hash('sha512', $request->getParsedBodyParam('password'));
-                $lib = new Library();
-                $lib->addNewUser($username, $mail, $password, 1);
+                $user = new UserModel();
+                $user->email = $request->getParsedBodyParam('email');
+                $user->username = $request->getParsedBodyParam('username');
+                $user->password = hash('sha512', $request->getParsedBodyParam('password'));
+                $user->role = 1;
+
+                UserModel::add($user);
             } catch (\Exception $e) {
                 $error="?error=user";
             }

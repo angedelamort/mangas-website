@@ -260,7 +260,6 @@ class Library {
     }
 
     public function getLatestVolumes($count = 5) {
-        error_log("$count");
         $query = "SELECT * FROM mangas_volume ORDER BY created_date DESC LIMIT $count;";
         $result = $this->mysqli->query($query) or $this->throwException($this->mysqli->error, $query);
         $items = $result->fetch_all(MYSQLI_ASSOC);

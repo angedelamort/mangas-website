@@ -34,7 +34,6 @@
                 </a>
                 {% if user and userRole == 3 %}
                 <div class="meta right floated">
-                    <a onclick="onEdit('{{ serie.id }}', '{{ serie.title }}');"><i class="ui edit icon"></i></a>
                     <a onclick="onDelete('{{ serie.id }}', '{{ serie.title }}');"><i class="ui trash alternate icon"></i></a>
                 </div>
                 {% endif %}
@@ -47,26 +46,18 @@
     <div id="modalAddSeries" class="ui mini modal">
         <div class="header">Add a Series</div>
         <div class="content">
-            <div class="ui action fluid input">
-                <input name="series" type="text" placeholder="Name" value="">
+            <div class="ui form">
+                <div class="field">
+                    <input name="title" type="text" placeholder="Name" value="">
+                </div>
+                <div class="field">
+                    <input name="short_name" type="text" placeholder="Short Name" value="">
+                </div>
             </div>
         </div>
         <div class="actions">
             <div class="ui negative button">Cancel</div>
             <div class="ui positive button">Add</div>
-        </div>
-    </div>
-
-    <div id="modalEditSeries" class="ui mini modal">
-        <div class="header">Edit a Series</div>
-        <div class="content">
-            <div class="ui action fluid input">
-                <input name="series" type="text" placeholder="Name" value="">
-            </div>
-        </div>
-        <div class="actions">
-            <div class="ui negative button">Cancel</div>
-            <div class="ui positive button">Update</div>
         </div>
     </div>
 

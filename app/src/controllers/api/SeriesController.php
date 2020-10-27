@@ -2,7 +2,9 @@
 
 namespace mangaslib\controllers\api;
 
-use mangaslib\db\Library;
+use mangaslib\models\SeriesModel;
+use mangaslib\models\VolumeModel;
+use mangaslib\utilities\SeoHelper;
 use mangaslib\utilities\SlimAuthorization;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -13,14 +15,19 @@ class SeriesController implements IRoutable {
     public function registerRoute(SunApp $app) {
 
         $app->post('/api/series', function(Request $request, Response $response, $args) {
-            $name = $request->getParsedBodyParam('name');
+            error_log(json_encode($request->getParsedBody()));
+            $title = $request->getParsedBodyParam('title');
 
-            if ($name) {
-                $lib = new Library();
-                $result = $lib->addSeries($name);
+            if ($title) {
+                // TODO: just send the $request->getParsedBody() and the add would just find the appropriate fields.
+                $series = SeriesModel::add([
+                    'title' => $title,
+                    'short_name' => $request->getParsedBodyParam('short_name')
+                ]);
                 return $response->withJson([
                     'result' => 'ok',
-                    'data'=> $result
+                    'data'=> $series,
+                    'redirectUrl' => "/show-page/$series->id/" . SeoHelper::normalizeTitle($series->title)
                 ], 200);
             }
 
@@ -28,28 +35,29 @@ class SeriesController implements IRoutable {
         })->add(SlimAuthorization::IsAdmin());
 
         $app->delete('/api/series/{id}', function(Request $request, Response $response, $args) {
-            $lib = new Library();
-            $lib->DeleteSeries($args['id']);
+            SeriesModel::delete($args['id']);
             return $response->withJson(['result' => 'ok'], 200);
         })->add(SlimAuthorization::IsAdmin());
 
-        $app->patch('/api/series/{id}', function(Request $request, Response $response, $args) {
-            $lib = new Library();
-            error_log($args['id']);
-            $lib->updateSeries($args['id'], $request->getParsedBody());
+        $app->patch('/api/series/{id}', function(Request $request, Response $response, array $args) {
+            $series = $request->getParsedBody();
+            $series['id'] = $args['id'];
+            SeriesModel::update($series);
             return $response->withJson(['result' => 'ok'], 200);
         })->add(SlimAuthorization::IsAdmin());
 
         $app->post('/api/series/{id}/volume', function(Request $request, Response $response, $args) {
-            $id = intval($args['id']);
-            $isbn = $request->getParsedBodyParam('isbn');
-            $volume = intval($request->getParsedBodyParam('volume'));
-            $lang = $request->getParsedBodyParam('lang');
+            $volume = new VolumeModel();
+            $volume->title_id = intval($args['id']);
+            $volume->isbn = $request->getParsedBodyParam('isbn');
+            $volume->volume = intval($request->getParsedBodyParam('volume'));
+            $volume->lang = $request->getParsedBodyParam('lang');
 
-            if ($id !== FALSE && $isbn && $volume !== FALSE && $lang) {
-                $lib = new Library();
-                $lib->AddVolume($id, $isbn, $volume, $lang);
-                return $response->withJson(['result' => 'ok'], 200);
+            // TODO: the if should be in the add and not in here...
+            if ($volume->title_id !== FALSE && $volume->isbn && $volume->volume !== FALSE && $volume->lang) {
+                // TODO: use the $request->getParsedBody() directly
+                $volume = VolumeModel::add($volume);
+                return $response->withJson(['result' => 'ok', 'data' => json_encode($volume)], 200);
             }
 
             return $response->withJson(['result' => 'error'], 400);

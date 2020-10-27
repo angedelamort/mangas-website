@@ -6,17 +6,17 @@
     <a href="/" class="item">Home</a>
     <div class="ui simple dropdown item">Mangas <i class="dropdown icon"></i>
         <div class="menu">
-          <a class="item" href="/missing-mangas">Missing Volumes</a>
-            <a class="item" href="/wishlist">Wishlist</a>
+          <a class="item" href="/user/missing-mangas">Missing Volumes</a>
+            <a class="item" href="/user/wishlist">Wishlist</a>
           <a class="item" href="/statistics">Statistics</a>
         </div>
     </div>
     <div class="right menu">
     {% if user %}
       <a class="header item" href="/user">{{user.username}}</a>
-      <a class="item" href="/logout">Log Out</a>
+      <a class="item" href="/user/logout">Log Out</a>
     {% else %}
-      <a class="item" href="/login">Log In</a>
+      <a class="item" href="/user/login">Log In</a>
     {% endif %}
     </div>
 </div>
