@@ -3,15 +3,19 @@
 namespace mangaslib\models;
 
 
-class SeriesModel {
+class SeriesModel extends BaseModel {
     public $id;
+    const id_type = "int";
     public $title;
     public $library_status;
     public $rating;
+    const rating_type = "float";
     public $series_status;
     public $short_name;
     public $volumes;
+    const volumes_type = "int";
     public $chapters;
+    const chapters_type = "int";
     public $editors;
     public $authors;
     public $genres;
@@ -28,9 +32,8 @@ class SeriesModel {
      * @return array<SeriesModel>
      */
     public static function all() {
-        $helper = new DatabaseHelper();
         $query = 'SELECT * FROM mangas_series ORDER BY title;';
-        $result = $helper->query($query);
+        $result = self::query($query);
         $items = [];
         /** @var SeriesModel $item */
         while ($item = $result->fetch_object(SeriesModel::class)) {
@@ -57,9 +60,8 @@ class SeriesModel {
     }
 
     public static function incomplete() {
-        $helper = new DatabaseHelper();
         $query = 'SELECT * FROM mangas_series WHERE library_status=0 ORDER BY title;';
-        $result = $helper->query($query);
+        $result = self::query($query);
         $items = [];
         /** @var SeriesModel $item */
         while ($item = $result->fetch_object(SeriesModel::class)) {
@@ -69,74 +71,56 @@ class SeriesModel {
         return $items;
     }
 
+    // TODO: move that to BaseModel
     /**
      * @param $id
      * @return SeriesModel
      */
     public static function find($id) {
         // TODO: have a map for temporary caching during session instead.
-        $helper = new DatabaseHelper();
         $query = "SELECT * FROM mangas_series WHERE id = $id;";
-        $result = $helper->query($query);
+        $result = self::query($query);
         /** @var SeriesModel $item */
         $item = $result->fetch_object(SeriesModel::class);
         $item->postProcess();
         return $item;
     }
 
+    /**
+     * @param $item
+     * @return SeriesModel
+     * @throws \ReflectionException
+     */
     public static function add($item){
-        $helper = new DatabaseHelper();
-        $helper->query($helper->arrayToInsert('mangas_series', $item));
-
-        return SeriesModel::find($helper->getLastInsertedId());
+        self::insert($item, 'mangas_series');
+        return self::find(self::getLastInsertedId());
     }
 
-    public static function update($item) {
-        $helper = new DatabaseHelper();
-        if (!is_array($item) || count($item) == 0) {
-            return 0;
-        }
-
-        // remove id if exists
-        if (!array_key_exists('id', $item)) {
-            return 0;
-        }
-        $id = $item['id'];
-        unset($item['id']);
-
-        // TODO: refactor this
-        if (array_key_exists('rating', $item) && !$item['rating']) {
-            unset($item['rating']);
-        }
-
-        $helper->query($helper->arrayToUpdate('mangas_series', $item, "id=$id"));
-        return SeriesModel::find($id);
+    public static function save(SeriesModel $item) {
+        self::update($item, 'mangas_series', "id=$item->id");
+        return SeriesModel::find($item->id);
     }
 
-    public static function delete($id){
-        return SeriesModel::deleteMany([$id]);
-    }
-
-    public static function deleteMany(array $ids){
-        $helper = new DatabaseHelper();
-        $condition = 'id=' . join(" OR id=", $ids);
+    /**
+     * @param array<int>|int $id
+     * @return bool
+     */
+    public static function remove($id){
+        if (is_numeric($id)) {
+            $id = [$id];
+        }
+        $condition = 'id=' . join(" OR id=", $id);
         $query = "DELETE FROM mangas_series WHERE $condition;";
-        $helper->query($query);
+        self::query($query);
         return true;
     }
 
-    public static function count($isCompleted = false) { // todo - maybe have some sort of flags
-        $helper = new DatabaseHelper();
-
-        if ($isCompleted)
-            return $helper->count('id', 'mangas_series', 'library_status=1');
-
-        return $helper->count('id', 'mangas_series');
+    public static function size($isCompleted = false) { // todo - maybe have some sort of flags
+        return self::count('id', 'mangas_series', $isCompleted ? 'library_status=1' : '1');
     }
 
     public static function isSeriesCompleted($id) {
-        $helper = new DatabaseHelper();
-        return $helper->count('id', 'mangas_series', "library_status=1 AND id=$id");
+        return self::count('id', 'mangas_series', "library_status=1 AND id=$id");
     }
 
     private function postProcess() {

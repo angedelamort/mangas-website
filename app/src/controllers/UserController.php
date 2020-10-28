@@ -24,6 +24,11 @@ class UserController implements IRoutable {
             $session = new UserSession();
             /** @var UserModel $user */
             $user = $session->getUser();
+
+            $val = json_decode($user->wishlist, true);
+            error_log($user->wishlist);
+            error_log(json_last_error());
+
             return $this->view->render($response, 'user.twig', [
                 "wishlist" => json_encode($user->wishlist(), JSON_PRETTY_PRINT)
             ]);
@@ -74,8 +79,10 @@ class UserController implements IRoutable {
         // TODO: return JSON should be under wishlist API.
         $app->patch('/user/wishlist', function(Request $request, Response $response, array $args) {
             $session = new UserSession();
-            $user = UserModel::find($session->getUser()->email);
+            /** @var UserModel $user */
+            $user = $session->getUser();
             $user->updateWishlist($request->getParsedBody());
+            $session->setUser($user);
             return $response->withJson(['result' => 'ok'], 200);
         })->add(SlimAuthorization::IsAdmin());
 

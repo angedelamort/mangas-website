@@ -6,7 +6,7 @@ use mangaslib\db\Library;
 use ReflectionClass;
 use ReflectionProperty;
 
-class DatabaseHelper {
+class DatabaseHelperObsolete {
     /** @var \mysqli */
     private $mysqli; // TODO: change to static since we can only have 1 instance. Have constructor with "UseSingleInstance = true"
 

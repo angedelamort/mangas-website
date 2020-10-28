@@ -32,11 +32,11 @@ class HomeController implements IRoutable {
             }
             return $this->view->render($response, 'statistics.twig', [
                 'series' => [
-                    'count' => SeriesModel::count(),
-                    'completed' => SeriesModel::count(true)
+                    'count' => SeriesModel::size(),
+                    'completed' => SeriesModel::size(true)
                 ],
                 'volume' => [
-                    'count' => VolumeModel::count(),
+                    'count' => VolumeModel::size(),
                     'recentlyAdded' => $recentlyAdded
                 ]
             ]);

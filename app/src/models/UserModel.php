@@ -2,13 +2,14 @@
 
 namespace mangaslib\models;
 
-class UserModel {
+class UserModel extends BaseModel {
     public $username;
     public $email;
     public $password;
     public $first_name;
     public $last_name;
     public $role;
+    const role_type = "int";
     public $wishlist;
 
     /**
@@ -20,22 +21,20 @@ class UserModel {
      * @throws \ReflectionException
      */
     public static function find($usernameOrEmail, $password = null) {
-        $helper = new DatabaseHelper();
-        $cond = UserModel::toCondition($usernameOrEmail);
+        $cond = self::toCondition($usernameOrEmail);
         if ($password) {
             $cond .= " AND password='$password'";
         }
-        $fields = DatabaseHelper::getFields(UserModel::class, ['$password']); // NOTE: don't get the password locally.
+        $fields = self::getFields(UserModel::class, ['$password']); // NOTE: don't get the password locally.
         $query = "SELECT $fields FROM mangas_users WHERE $cond;";
-        $result = $helper->query($query);
+        $result = self::query($query);
         /** @var UserModel $item */
         $item = $result->fetch_object(UserModel::class);
         return $item;
     }
 
-    public static function count() {
-        $helper = new DatabaseHelper();
-        return $helper->count('email', 'mangas_users');
+    public static function size() {
+        return self::count('email', 'mangas_users');
     }
 
     // TODO: create a resource wishlist
@@ -44,12 +43,11 @@ class UserModel {
     }
 
     public function updateWishlist(array $wishlist) {
-        $helper = new DatabaseHelper();
-        $this->wishlist = json_encode($wishlist);
-        $w = $helper->real_escape_string($this->wishlist);
-        $query = "UPDATE mangas_users SET wishlist=\"$w\" WHERE email='$this->email';";
-        $helper->query($query);
-        return true;
+        $this->wishlist = json_encode($wishlist); // since it's in the object and the real request doesn't exists, we need to update it manually.
+        $escapedWishlist = self::escapeString($this->wishlist);
+        $query = "UPDATE mangas_users SET wishlist=\"$escapedWishlist\" WHERE email='$this->email';";
+        self::query($query);
+        return $wishlist;
     }
 
     /**
@@ -58,9 +56,7 @@ class UserModel {
      * @throws \ReflectionException
      */
     public static function add(UserModel $item) {
-        $helper = new DatabaseHelper();
-        $helper->query($helper->objectToInsert($item, 'mangas_users'));
-
+        self::query(self::insert($item, 'mangas_users'));
         return UserModel::find($item->email);
     }
 

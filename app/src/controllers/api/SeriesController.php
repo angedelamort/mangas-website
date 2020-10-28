@@ -15,15 +15,15 @@ class SeriesController implements IRoutable {
     public function registerRoute(SunApp $app) {
 
         $app->post('/api/series', function(Request $request, Response $response, $args) {
-            error_log(json_encode($request->getParsedBody()));
             $title = $request->getParsedBodyParam('title');
+            $shortName = $request->getParsedBodyParam('short_name');
 
-            if ($title) {
-                // TODO: just send the $request->getParsedBody() and the add would just find the appropriate fields.
-                $series = SeriesModel::add([
-                    'title' => $title,
-                    'short_name' => $request->getParsedBodyParam('short_name')
-                ]);
+            if ($title && $shortName) {
+                $series = new SeriesModel();
+                $series->title = $title;
+                $series->short_name = $shortName;
+                $series = SeriesModel::add($series);
+
                 return $response->withJson([
                     'result' => 'ok',
                     'data'=> $series,
@@ -35,15 +35,16 @@ class SeriesController implements IRoutable {
         })->add(SlimAuthorization::IsAdmin());
 
         $app->delete('/api/series/{id}', function(Request $request, Response $response, $args) {
-            SeriesModel::delete($args['id']);
+            SeriesModel::remove($args['id']);
             return $response->withJson(['result' => 'ok'], 200);
         })->add(SlimAuthorization::IsAdmin());
 
         $app->patch('/api/series/{id}', function(Request $request, Response $response, array $args) {
-            $series = $request->getParsedBody();
-            $series['id'] = $args['id'];
-            SeriesModel::update($series);
-            return $response->withJson(['result' => 'ok'], 200);
+            /** @var SeriesModel $series */
+            $series = SeriesModel::createFromArray($request->getParsedBody());
+            $series->id = intval($args['id']);
+            $result = SeriesModel::save($series);
+            return $response->withJson(['result' => 'ok', 'data' => $result], 200);
         })->add(SlimAuthorization::IsAdmin());
 
         $app->post('/api/series/{id}/volume', function(Request $request, Response $response, $args) {

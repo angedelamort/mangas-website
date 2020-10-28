@@ -46,8 +46,11 @@ TODO: describe the different sections and how to use them.
 
 ### Current
 
-* Make Models (Series, Volume, etc) so we can remove "library.php" and have self contained objects.
-
+* Make a BaseModel 
+    * finish refactoring the base class with the one that inherit. Still spaghetti.
+    * should make a 'search' for the find
+    * should try to avoid table_name?
+    * all APIs should return a JSON object. (probably remove form-submit)
 
 ### Next
 

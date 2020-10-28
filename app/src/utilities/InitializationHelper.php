@@ -26,7 +26,7 @@ class InitializationHelper {
 
     public static function HasAdmin() {
         if (InitializationHelper::IsDatabaseInitialized()) {
-            return UserModel::count();
+            return UserModel::size();
         }
         return false;
     }

@@ -13,18 +13,22 @@ class VolumeController implements IRoutable {
     public function registerRoute(SunApp $app) {
 
         $app->delete('/api/volume/{isbn}', function(Request $request, Response $response, array $args) {
-            VolumeModel::delete($args['isbn']);
+            VolumeModel::remove($args['isbn']);
             return $response->withJson(['result' => 'ok'], 200);
         })->add(SlimAuthorization::IsAdmin());
 
         $app->patch('/api/volume/{isbn}', function(Request $request, Response $response, array $args) {
+            /** @var VolumeModel $volume */
+            $volume = VolumeModel::createFromArray($request->getParsedBody());
+            $isbn = $args['isbn'];
             $isbnNew = $request->getParsedBodyParam('isbn');
-            $volume = intval($request->getParsedBodyParam('volume'));
-            $lang = $request->getParsedBodyParam('lang');
-            // TODO: probably send the bodyparams? and initialize?
-            VolumeModel::update($args['isbn'], $isbnNew, $volume, $lang);
 
-            return $response->withJson(['result' => 'ok'], 200);
+            if ($isbnNew && $isbnNew != $isbn) {
+                $volume->isbn = $isbnNew;
+            }
+            VolumeModel::save($volume, $isbn);
+
+            return $response->withJson(['result' => 'ok', 'data' => VolumeModel::find($volume->isbn)], 200);
         })->add(SlimAuthorization::IsAdmin());
     }
 }

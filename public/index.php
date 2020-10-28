@@ -1,7 +1,8 @@
 <?php
 
-require('../vendor/autoload.php');
+$composer = require_once('../vendor/autoload.php');
 
+use mangaslib\utilities\ConstructStatic;
 use mangaslib\utilities\InitializationHelper;
 use sunframework\SunApp;
 use sunframework\SunAppConfig;
@@ -9,6 +10,9 @@ use sunframework\twigExtensions\LibraryExtension;
 use sunframework\twigExtensions\LibraryItem;
 use mangaslib\extensions\SiteTwigExtension;
 use mangaslib\extensions\LinkTwigExtension;
+
+// TODO: maybe move that into the framework?
+$loader = new ConstructStatic($composer);
 
 /**
  * Adding public libraries

@@ -2,11 +2,13 @@
 
 namespace mangaslib\models;
 
-class VolumeModel {
+class VolumeModel extends BaseModel {
     public $isbn;
     public $lang;
     public $volume;
+    const volume_type = "int";
     public $title_id; // foreign key
+    const title_type = "int";
     public $created_date;
 
     private $series = null;
@@ -17,13 +19,12 @@ class VolumeModel {
      * @return array<VolumeModel>
      */
     public static function all($seriesId = null, $ordering = "DESC") {
-        $helper = new DatabaseHelper();
         $cond = "1";
         if (intval($seriesId) > 0) {
             $cond = "title_id=$seriesId";
         }
         $query = "SELECT * FROM mangas_volume WHERE $cond ORDER BY lang, volume $ordering;";
-        $result = $helper->query($query);
+        $result = self::query($query);
         $items = [];
         /** @var VolumeModel $item */
         while ($item = $result->fetch_object(VolumeModel::class)) {
@@ -33,32 +34,39 @@ class VolumeModel {
     }
 
     public static function find($isbn) {
-        $helper = new DatabaseHelper();
         $query = "SELECT * FROM mangas_volume WHERE isbn='$isbn';";
-        $result = $helper->query($query);
+        $result = self::query($query);
         /** @var VolumeModel $item */
         return $result->fetch_object(VolumeModel::class);
     }
 
-    public static function delete($isbn) {
-        $helper = new DatabaseHelper();
+    public static function remove($isbn) {
         $sql = "DELETE FROM mangas_volume WHERE isbn='$isbn' LIMIT 1;";
-        return $helper->query($sql);
+        return self::query($sql);
     }
 
+    /**
+     * @param VolumeModel $volume
+     * @return object|\stdClass
+     * @throws \ReflectionException
+     */
     public static function add(VolumeModel $volume) {
-        $helper = new DatabaseHelper();
-        $sql = $helper->objectToInsert($volume,'mangas_volume', ['created_date']);
-        $helper->query($sql);
+        self::insert($volume, 'mangas_volume', ['created_date']);
         return VolumeModel::find($volume->isbn);
     }
 
-    // TODO: should create a new Model and call update. We should initialize using the db and with the query params update if there.
-    public static function update($isbn, $isbnNew, $volume, $lang) {
-        $helper = new DatabaseHelper();
-        $sql = "UPDATE mangas_volume SET isbn='$isbnNew', lang='$lang', volume=$volume WHERE isbn='$isbn' LIMIT 1;";
-        $helper->query($sql);
-        return VolumeModel::find($isbnNew);
+    /**
+     * @param VolumeModel $model
+     * @param string $newKey
+     * @return object|\stdClass
+     * @throws \ReflectionException
+     */
+    public static function save(VolumeModel $model, string $newKey = null) {
+        if ($newKey === null){
+            $newKey = $model->isbn;
+        }
+        self::update($model, 'mangas_volume', "isbn='$newKey'");
+        return VolumeModel::find($model->isbn);
     }
 
     public function series() {
@@ -73,13 +81,9 @@ class VolumeModel {
      * @param int $seriesId
      * @return int
      */
-    public static function count($seriesId = null) {
-        $helper = new DatabaseHelper();
-        $cond = "1";
-        if (is_string($seriesId) && strlen($seriesId) > 0) {
-            $cond = "title_id=$seriesId";
-        }
-        return $helper->count('isbn', 'mangas_volume', $cond);
+    public static function size($seriesId = null) {
+        $cond = (is_string($seriesId) && strlen($seriesId) > 0) ? $cond = "title_id=$seriesId" : "1";
+        return self::count('isbn', 'mangas_volume', $cond);
     }
 
     /**
@@ -87,9 +91,8 @@ class VolumeModel {
      * @return array<VolumeModel>
      */
     public static function latest($count = 5) {
-        $helper = new DatabaseHelper();
         $query = "SELECT * FROM mangas_volume ORDER BY created_date DESC LIMIT $count;";
-        $result = $helper->query($query);
+        $result = self::query($query);
         $items = [];
         /** @var VolumeModel $item */
         while ($item = $result->fetch_object(VolumeModel::class)) {
@@ -104,13 +107,12 @@ class VolumeModel {
      * @return array<int>
      */
     public static function missing($seriesId = null, $totalSeriesVolumes = 0) {
-        $helper = new DatabaseHelper();
         $cond = "1";
         if (is_string($seriesId) && strlen($seriesId) > 0) {
             $cond = "title_id=$seriesId";
         }
         $query = "SELECT volume FROM mangas_volume WHERE $cond ORDER BY volume;";
-        $result = $helper->query($query);
+        $result = self::query($query);
         $volumes = $result->fetch_all(MYSQLI_ASSOC);
         $missingVolumes = [];
         $counter = 1;
