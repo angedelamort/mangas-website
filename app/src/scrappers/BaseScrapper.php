@@ -2,14 +2,9 @@
 
 namespace mangaslib\scrappers;
 
-abstract class BaseScrapper {
+use mangaslib\models\SeriesModel;
 
-    /**
-     * @param $id string id to be able to fetch the data.
-     * @return array using appropriate property names.
-     * property list: [genres, themes, description, comment, rating(0-10), thumbnail, scrapper_id, scrapper_mapping]
-     */
-    public abstract function getMangasInfoFromId($id);
+abstract class BaseScrapper {
 
     /**
      * Search the scrapper using the title
@@ -19,10 +14,8 @@ abstract class BaseScrapper {
     public abstract function searchByTitle($title);
 
     /**
-     * Using the JSON returned bu the request and stored in the comment property, convert it
-     * into a standard array.
-     * @param $json
-     * @return array
+     * @param $resourceId
+     * @return SeriesModel
      */
-    public abstract function JsonToModel($json);
+    public abstract function createSeriesFromId(string $resourceId) : SeriesModel;
 }

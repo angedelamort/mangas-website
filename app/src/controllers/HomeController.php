@@ -2,8 +2,14 @@
 
 namespace mangaslib\controllers;
 
+use mangaslib\models\BaseModel;
+use mangaslib\models\FieldSchema;
 use mangaslib\models\SeriesModel;
 use mangaslib\models\VolumeModel;
+use mangaslib\scrappers\ScrapperFactory;
+use mangaslib\utilities\SlimAuthorization;
+use ReflectionClass;
+use ReflectionProperty;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use sunframework\route\IRoutable;
@@ -51,5 +57,51 @@ class HomeController implements IRoutable {
                 "missingVolumes" => $series->missingVolumes()
             ]);
         });
+
+        $app->get('/scrapper/3WayMerge', function(Request $request, Response $response, array $args) {
+            $scrapperId = $request->getQueryParam('scrapperId');
+            $resourceId = $request->getQueryParam('resourceId');
+            $seriesId = $request->getQueryParam('seriesId');
+
+            $originalSeries = SeriesModel::find($seriesId);
+            $scrapper = ScrapperFactory::createFromId($scrapperId);
+            $scrapperSeries = $scrapper->createSeriesFromId($resourceId);
+            $mergeSeries = self::merge($originalSeries, $scrapperSeries);
+
+            return $this->view->render($response, 'scrapper-merge.twig', [
+                'original' => $originalSeries,
+                'merge' => $mergeSeries,
+                'scrapper' => $scrapperSeries,
+                'fields' => self::getFields()
+            ]);
+        })->add(SlimAuthorization::IsAdmin());
+    }
+
+    private static function getFields() {
+        $reflect = new ReflectionClass(SeriesModel::class);
+        $array = [];
+        foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
+            $schema = new FieldSchema($reflect, $prop);
+            if ($schema->isReadOnly()) {
+                continue;
+            }
+            $array[] = [
+                'name' => $prop->getName(),
+                'editor' => $schema->getEditor()
+            ];
+        }
+        return $array;
+    }
+
+    private static function merge(SeriesModel $original, SeriesModel $changes) {
+        $merge = new SeriesModel();
+        $reflect = new ReflectionClass(SeriesModel::class);
+        foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
+            $originalValue = $prop->getValue($original);
+            $changeValue = $prop->getValue($changes);
+            $prop->setValue($merge, $originalValue !== null ? $originalValue : $changeValue);
+
+        }
+        return $merge;
     }
 }

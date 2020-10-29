@@ -31,31 +31,37 @@ class FieldSchema {
      */
     private $prop;
 
-    private $hasType;
-    private $type;
+    private $type = "string";
+    private $editor = "textbox";
+    private $readonly = false;
 
     public function __construct(ReflectionClass $reflect, ReflectionProperty $prop) {
         $this->reflect = $reflect;
         $this->prop = $prop;
 
         $schema = $this->reflect->getConstant($prop->getName() . '_schema');
-        if ($schema === FALSE) {
-            $$this->type = "string";
-            $$this->hasType = false;
-        } else if (!in_array('type', $schema)) {
-            $$this->type = "string";
-            $$this->hasType = true;
-        } else {
-            $$this->type = $schema['type'];
-            $$this->hasType = true;
+        if ($schema !== FALSE) {
+            if (array_key_exists('type', $schema)) {
+                $this->type = $schema['type'];
+            }
+            if (array_key_exists('editor', $schema)) {
+                $this->editor = $schema['editor'];
+            }
+            if (array_key_exists('readonly', $schema)) {
+                $this->readonly = $schema['readonly'];
+            }
         }
-    }
-
-    public function hasType() {
-        return $this->hasType;
     }
 
     public function getType() {
         return $this->type;
+    }
+
+    public function getEditor() {
+        return $this->editor;
+    }
+
+    public function isReadOnly() {
+        return $this->readonly;
     }
 }

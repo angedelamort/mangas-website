@@ -2,8 +2,9 @@
 
 namespace mangaslib\scrappers;
 
-
 // http://www.animenewsnetwork.com/encyclopedia/api.php
+use mangaslib\models\SeriesModel;
+
 class AnimeNewsNetworkScrapper extends BaseScrapper {
 
     public const ID = "ann";
@@ -28,9 +29,7 @@ class AnimeNewsNetworkScrapper extends BaseScrapper {
         return $result;
     }
 
-    // TODO: add a table scrapper to store the information
-    // TODO: make a button that ask for an id and scrape to import images (in cache folder) and other stuff.
-    public function getMangasInfoFromId($id) {
+    public function createSeriesFromId(string $id) : SeriesModel {
         $result = [];
         $url = "http://cdn.animenewsnetwork.com/encyclopedia/api.xml?manga=$id";
         $content = file_get_contents($url);
@@ -81,15 +80,13 @@ class AnimeNewsNetworkScrapper extends BaseScrapper {
             $result['thumbnail'] = '';
         }
 
-        return [
-            'genres' => join(',', $result['genres']),
-            'themes' => join(',', $result['themes']),
-            'description' => $result['description'],
-            'comment' => $content,
-            'rating' => $result['rating'],
-            'thumbnail' => $result['thumbnail'],
-            'scrapper_id' => AnimeNewsNetworkScrapper::ID,
-            'scrapper_mapping' => $id
-        ];
+        $series = new SeriesModel();
+        $series->genres = join(',', $result['genres']);
+        $series->themes = join(',', $result['themes']);
+        $series->synopsis = $result['description'];
+        $series->rating = $result['rating'];
+        $series->thumbnail = $result['thumbnail'];
+
+        return $series;
     }
 }

@@ -104,19 +104,8 @@ function OpenAddVolume() {
 }
 
 async function onSelectedItem(scrapperId, itemId) {
-    $('#modalScrapper').modal('hide');
-    let seriesId = $('#series').data('series-id');
-    let response = await fetch(`/api/scrapper/${scrapperId}`, {
-        method: "POST",
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-        body: JSON.stringify({
-            externalId: itemId,
-            seriesId: seriesId
-        })
-    });
-    if (response.ok) {
-        document.location.reload();
-    }
+    const seriesId = $('#series').data('series-id');
+    document.location.replace(`/scrapper/3WayMerge?scrapperId=${scrapperId}&resourceId=${itemId}&seriesId=${seriesId}`);
 }
 
 function onDelete(isbn, volume) {

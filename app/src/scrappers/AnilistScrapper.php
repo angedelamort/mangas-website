@@ -3,12 +3,14 @@
 namespace mangaslib\scrappers;
 
 // Visit : https://anilist.co/graphiql
+use mangaslib\models\SeriesModel;
+
 class AnilistScrapper extends BaseScrapper {
 
     const BASE_URI = "https://graphql.anilist.co/";
     const ID = "anilist";
 
-    public function getMangasInfoFromId($id) {
+    public function createSeriesFromId(string $id) : SeriesModel {
         $query = "{
             Media(id: $id, type: MANGA) {
               id,
@@ -70,16 +72,58 @@ class AnilistScrapper extends BaseScrapper {
             $themes[] = $tag['name'];
         }
 
-        return [
-            'genres' => join(',', $json['data']['Media']['genres']),
-            'themes' => join(',', $themes),
-            'description' => $json['data']['Media']['description'],
-            'comment' => $result,
-            'rating' => 0, // TODO: could get the MAL rating
-            'thumbnail' => $json['data']['Media']['coverImage']['large'],
-            'scrapper_id' => AnilistScrapper::ID,
-            'scrapper_mapping' => $id
-        ];
+        $series = new SeriesModel();
+        $series->id = $id;
+        $series->genres = join(',', $json['data']['Media']['genres']);
+        $series->synopsis = $json['data']['Media']['description'];
+        $series->thumbnail = $json['data']['Media']['coverImage']['large'];
+        $series->banner = $json['data']['Media']['bannerImage'];
+        $series->cover = $json['data']['Media']['coverImage']['extraLarge'];
+        $series->chapters = intval($json['data']['Media']['chapters']);
+        $series->volumes = intval($json['data']['Media']['volumes']);
+        $series->series_status = $json['data']['Media']['status'];
+
+        $themes = [];
+        foreach ($json['data']['Media']['tags'] as $tag) {
+            $themes[] = $tag['name'];
+        }
+        $series->themes = join(',', $themes);
+
+        $alternateTitles = $json['data']['Media']['title'];
+        if ($alternateTitles && array_key_exists('userPreferred', $alternateTitles)) {
+            unset($alternateTitles['userPreferred']);
+        }
+        $series->alternate_titles = json_encode($alternateTitles);
+
+        // TODO: decode that:
+        /*
+         "staff": {
+        "edges": [
+          {
+            "id": 61911,
+            "role": "Story & Art",
+            "node": {
+              "id": 97623,
+              "name": {
+                "first": "Tsukasa",
+                "last": "Houjou",
+                "full": "Tsukasa Houjou",
+                "native": "北条司"
+              }
+            }
+          }
+        ]
+         */
+        /*if ($result['data']['Media']['staff']) {
+            foreach ($result['data']['Media']['staff'] as $staff) {
+                $item['staff'][] = [
+                    'id' => $staff['id'],
+                    'role' => $staff['role'],
+                    'name' => $staff['name']['full']
+                ];
+            }
+        }*/
+        return $series;
     }
 
     public function searchByTitle($title) {
@@ -115,80 +159,6 @@ class AnilistScrapper extends BaseScrapper {
         }
 
         return $items;
-    }
-
-    // TODO: remove me!!
-    public static function AddExtraData(&$series, $json) {
-      $result = json_decode($json, true);
-
-      // TODO: create a place where we can see all those properties so they are not magic? maybe create a class?
-      $series['banner'] = $result['data']['Media']['bannerImage'];
-      $series['cover'] = $result['data']['Media']['coverImage']['extraLarge'];
-      $series['chapters'] = $result['data']['Media']['chapters'];
-      $series['volumes'] = $result['data']['Media']['volumes'];
-      $series['status'] = $result['data']['Media']['status'];
-      $series['tags'] = $result['data']['Media']['tags'];
-      $series['titles'] = $result['data']['Media']['title'];
-
-      return $series;
-    }
-
-    public function JsonToModel($json) {
-        $result = json_decode($json, true);
-        $item = [];
-
-        // TODO: create a place where we can see all those properties so they are not magic? maybe create a class?
-        $item['banner'] = $result['data']['Media']['bannerImage'];
-        $item['cover'] = $result['data']['Media']['coverImage']['extraLarge'];
-        $item['color'] = $result['data']['Media']['coverImage']['color'];
-        $item['cover'] = $result['data']['Media']['coverImage']['extraLarge'];
-        $item['chapters'] = $result['data']['Media']['chapters'];
-        $item['volumes'] = $result['data']['Media']['volumes'];
-        $item['status'] = $result['data']['Media']['status'];
-        $item['tags'] = $result['data']['Media']['tags'];
-        $item['titles'] = $result['data']['Media']['title'];
-        $item['countryOfOrigin'] = $result['data']['Media']['countryOfOrigin'];
-        $item['genres'] = $result['data']['Media']['genres'];
-        $item['isAdult'] = $result['data']['Media']['isAdult'];
-        $item['siteUrl'] = $result['data']['Media']['siteUrl'];
-        $item['description'] = $result['data']['Media']['description'];
-        $item['alternate_titles'] = $result['data']['Media']['title'];
-
-        if (is_array($item['alternate_titles']) && array_key_exists('userPreferred', $item['alternate_titles'])) {
-            unset($item['alternate_titles']['userPreferred']);
-        }
-
-        $item['staff'] = [];
-        // TODO: decode that:
-        /*
-         "staff": {
-        "edges": [
-          {
-            "id": 61911,
-            "role": "Story & Art",
-            "node": {
-              "id": 97623,
-              "name": {
-                "first": "Tsukasa",
-                "last": "Houjou",
-                "full": "Tsukasa Houjou",
-                "native": "北条司"
-              }
-            }
-          }
-        ]
-         */
-        /*if ($result['data']['Media']['staff']) {
-            foreach ($result['data']['Media']['staff'] as $staff) {
-                $item['staff'][] = [
-                    'id' => $staff['id'],
-                    'role' => $staff['role'],
-                    'name' => $staff['name']['full']
-                ];
-            }
-        }*/
-
-        return $item;
     }
 
     private function doRequest($query) {

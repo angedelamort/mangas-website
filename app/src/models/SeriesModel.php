@@ -6,7 +6,7 @@ namespace mangaslib\models;
 class SeriesModel extends BaseModel {
 
     public $id;
-    const id_schema = ['type'=>'int'];
+    const id_schema = ['type'=>'int', 'readonly' => true];
     public $title;
     public $library_status;
     public $rating;
@@ -17,15 +17,18 @@ class SeriesModel extends BaseModel {
     const volumes_schema = ['type'=>'int'];
     public $chapters;
     const chapters_schema = ['type'=>'int'];
+    public $genres;
+    public $themes;
     public $editors;
     public $authors;
-    public $genres;
-    public $synopsis;
+    public $thumbnail;
     public $cover;
     public $banner;
-    public $thumbnail;
     public $alternate_titles;
-    public $themes;
+    public $synopsis;
+    const synopsis_schema = ['editor'=>'textarea'];
+    public $comments;
+    const comments_schema = ['editor'=>'textarea'];
 
     protected static function tableName() : string {
         return "mangas_series";
@@ -70,7 +73,7 @@ class SeriesModel extends BaseModel {
      * @return SeriesModel
      */
     public static function find($id) {
-        return self::findById($id);
+        return self::findById($id)->postProcess();
     }
 
     /**

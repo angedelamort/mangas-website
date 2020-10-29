@@ -46,13 +46,6 @@ TODO: describe the different sections and how to use them.
 
 ### Current
 
-* Make a BaseModel 
-    * should make a 'search' for the find
-    * should try to avoid table_name?
-
-* Rename the _type to _schema with a schema class utilities that does stuff like: gettype($reflection)
-  const volumes_type = "int";
-  const volumes_schema = ['type'=>'int'];
 
 ### Next
 
@@ -63,7 +56,6 @@ TODO: describe the different sections and how to use them.
 * uploader assets manually (in the edit windows)
 * make categories per language? with sections? Might be more interesting for browsing.
 * when click on profile -> (change name/mail/password).
-* When scrapping, fill those fields if they are empty and download images as well
 * recreate an initialization script instead of having updates.
     * remove migration button
 * Do a docker-compose down and re-test everything and remove useless scripts

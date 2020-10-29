@@ -3,6 +3,7 @@
 namespace mangaslib\models;
 
 
+use mangaslib\db\Library;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -14,7 +15,7 @@ abstract class BaseModel {
     private static $mysqli; // TODO: change to static since we can only have 1 instance. Have constructor with "UseSingleInstance = true"
 
     private static function __constructStatic() {
-        $file = self::getDbConfig();
+        $file = Library::getDbConfig();
         $ini = parse_ini_file($file, true);
         self::open($ini);
     }
@@ -27,10 +28,6 @@ abstract class BaseModel {
     // static method to override in base class if necessary
     protected static function tableName() : string {
         return get_called_class();
-    }
-
-    public static function getDbConfig() : string{
-        return dirname(dirname(dirname(__DIR__))) . '/db.ini';
     }
 
     public static function findById($id) {
@@ -79,7 +76,7 @@ abstract class BaseModel {
             if (array_key_exists($prop->getName(), $array)) {
                 $value = $array[$prop->getName()];
                 $schema = new FieldSchema($reflect, $prop);
-                if ($schema->hasType()) {
+                if ($schema->getType() != "string") {
                     settype($value, $schema->getType());
                 }
                 $prop->setValue($instance, $value);

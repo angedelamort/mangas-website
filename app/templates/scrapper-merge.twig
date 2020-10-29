@@ -1,0 +1,78 @@
+{% extends "layouts/default.twig" %}
+
+{% block content %}
+    <div class="ui fluid full container">
+        <div class="ui segment">
+        <h1 class="ui center aligned header">3-way merge</h1>
+
+        <form class="ui form">
+            <input type="hidden" name="id" value="{{ merge.id }}">
+            <div class="ui padded grid grid">
+                <div class="two wide blue column ">Name</div>
+                <div class="four wide blue center aligned column">Current</div>
+                <div class="six wide blue center aligned column">Merge Result</div>
+                <div class="four wide blue center aligned column">Scrapper</div>
+
+            {% for field in fields %}
+                <div class="two wide white column">{{ field.name }}</div>
+                <div class="four wide violet column">
+                    <div class="field">
+                        {% if field.editor == 'textarea' %}
+                        <textarea>{{ attribute(original, field.name) }}</textarea>
+                        {% else %}
+                        <input type="text" value="{{ attribute(original, field.name) }}">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="six wide black column">
+                    <div class="field">
+                        {% if field.editor == 'textarea' %}
+                            <textarea name="{{ field.name }}">{{ attribute(merge, field.name) }}</textarea>
+                        {% else %}
+                            <input type="text" name="{{ field.name }}" value="{{ attribute(merge, field.name) }}">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="four wide violet column">
+                    <div class="field">
+                        {% if field.editor == 'textarea' %}
+                            <textarea>{{ attribute(scrapper, field.name) }}</textarea>
+                        {% else %}
+                            <input type="text" value="{{ attribute(scrapper, field.name) }}">
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+                <div class="two wide column "></div>
+                <div class="four wide column"></div>
+                <div class="six wide center aligned column">
+                    <div class="ui violet button" onclick="saveMerge();">Save</div>
+                </div>
+                <div class="four wide column"></div>
+            </div>
+        </form>
+        </div>
+    </div>
+
+    <script>
+        async function saveMerge() {
+            let json = $('form').serializeArray().reduce(function (obj, item) {
+                obj[item.name] = item.value;
+                return obj;
+            }, {});
+
+            let result = await fetch(`/api/series/${json.id}`, {
+                method: "PATCH",
+                headers: { "Content-type": "application/json; charset=UTF-8" },
+                body: JSON.stringify(json)
+            });
+
+            if (result.ok) {
+                document.location.replace(`/show-page/${json.id}/{{ original.title|normalize|raw }}`);
+            } else {
+                // TODO: write an error message somewhere in the page.
+                console.log('error updating!');
+            }
+        }
+    </script>
+{% endblock %}
