@@ -24,11 +24,6 @@ class UserController implements IRoutable {
             $session = new UserSession();
             /** @var UserModel $user */
             $user = $session->getUser();
-
-            $val = json_decode($user->wishlist, true);
-            error_log($user->wishlist);
-            error_log(json_last_error());
-
             return $this->view->render($response, 'user.twig', [
                 "wishlist" => json_encode($user->wishlist(), JSON_PRETTY_PRINT)
             ]);

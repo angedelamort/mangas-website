@@ -2,13 +2,13 @@
 
 namespace mangaslib\models;
 
+
 use ReflectionClass;
 use ReflectionProperty;
 
-// TODO: make a static tableName that you can override for easy conditions
 abstract class BaseModel {
 
-    const DB_NULL = "NULL-893ebfc0-2f8e-44b0-ba1d-928ef25cfdaf";
+    const DB_NULL = "<NULL-893ebfc0-2f8e-44b0-ba1d-928ef25cfdaf>";
 
     /** @var \mysqli */
     private static $mysqli; // TODO: change to static since we can only have 1 instance. Have constructor with "UseSingleInstance = true"
@@ -19,8 +19,51 @@ abstract class BaseModel {
         self::open($ini);
     }
 
-    public static function getDbConfig(){
+    // static method to override in base class if necessary
+    protected static function primaryKey() : string {
+        return 'id';
+    }
+
+    // static method to override in base class if necessary
+    protected static function tableName() : string {
+        return get_called_class();
+    }
+
+    public static function getDbConfig() : string{
         return dirname(dirname(dirname(__DIR__))) . '/db.ini';
+    }
+
+    public static function findById($id) {
+        $tableName = static::tableName();
+        $primaryKey = static::primaryKey();
+        $query = "SELECT * FROM $tableName WHERE $primaryKey='$id';";
+        $result = self::query($query);
+        return $result->fetch_object(get_called_class());
+    }
+
+    public static function deleteById($id) {
+        $tableName = static::tableName();
+        $primaryKey = static::primaryKey();
+        $sql = "DELETE FROM $tableName WHERE $primaryKey='$id' LIMIT 1;";
+        return self::query($sql);
+    }
+
+    public static function findAll($fields = '*', $cond = '1', $orderBy = null, $postProcessCallback = null) {
+        $tableName = static::tableName();
+        $query = "SELECT $fields FROM $tableName WHERE $cond";
+        if ($orderBy != null) {
+            $query .= " ORDER BY $orderBy";
+        }
+        $query .= ';';
+        $result = self::query($query);
+        $items = [];
+        while ($item = $result->fetch_object(get_called_class())) {
+            if ($postProcessCallback) {
+                $item = call_user_func($postProcessCallback, $item);
+            }
+            $items[] = $item;
+        }
+        return $items;
     }
 
     /**
@@ -35,9 +78,9 @@ abstract class BaseModel {
         foreach ($reflect->getProperties(ReflectionProperty::IS_PUBLIC) as $prop) {
             if (array_key_exists($prop->getName(), $array)) {
                 $value = $array[$prop->getName()];
-                $type = $reflect->getConstant($prop->getName() . '_type');
-                if ($type !== FALSE) {
-                    settype($value, $type);
+                $schema = new FieldSchema($reflect, $prop);
+                if ($schema->hasType()) {
+                    settype($value, $schema->getType());
                 }
                 $prop->setValue($instance, $value);
             }

@@ -6,12 +6,20 @@ class VolumeModel extends BaseModel {
     public $isbn;
     public $lang;
     public $volume;
-    const volume_type = "int";
+    const volume_schema = ['type'=>'int'];
     public $title_id; // foreign key
-    const title_type = "int";
+    const title_schema = ['type'=>'int'];
     public $created_date;
 
     private $series = null;
+
+    protected static function primaryKey() : string {
+        return 'isbn';
+    }
+
+    protected static function tableName() : string {
+        return "mangas_volume";
+    }
 
     /**
      * @param int $seriesId
@@ -19,30 +27,16 @@ class VolumeModel extends BaseModel {
      * @return array<VolumeModel>
      */
     public static function all($seriesId = null, $ordering = "DESC") {
-        $cond = "1";
-        if (intval($seriesId) > 0) {
-            $cond = "title_id=$seriesId";
-        }
-        $query = "SELECT * FROM mangas_volume WHERE $cond ORDER BY lang, volume $ordering;";
-        $result = self::query($query);
-        $items = [];
-        /** @var VolumeModel $item */
-        while ($item = $result->fetch_object(VolumeModel::class)) {
-            $items[] = $item;
-        }
-        return $items;
+        $cond = (intval($seriesId) > 0) ? "title_id=$seriesId" : '1';
+        return self::findAll('*', $cond, "lang, volume $ordering");
     }
 
-    public static function find($isbn) {
-        $query = "SELECT * FROM mangas_volume WHERE isbn='$isbn';";
-        $result = self::query($query);
-        /** @var VolumeModel $item */
-        return $result->fetch_object(VolumeModel::class);
+    public static function find(string $isbn) : VolumeModel {
+        return self::findById($isbn);
     }
 
     public static function remove($isbn) {
-        $sql = "DELETE FROM mangas_volume WHERE isbn='$isbn' LIMIT 1;";
-        return self::query($sql);
+        return self::deleteById($isbn);
     }
 
     /**
@@ -91,14 +85,7 @@ class VolumeModel extends BaseModel {
      * @return array<VolumeModel>
      */
     public static function latest($count = 5) {
-        $query = "SELECT * FROM mangas_volume ORDER BY created_date DESC LIMIT $count;";
-        $result = self::query($query);
-        $items = [];
-        /** @var VolumeModel $item */
-        while ($item = $result->fetch_object(VolumeModel::class)) {
-            $items[] = $item;
-        }
-        return $items;
+        return self::findAll('*', '1', "created_date DESC LIMIT $count;");
     }
 
     /**

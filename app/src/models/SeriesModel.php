@@ -4,18 +4,19 @@ namespace mangaslib\models;
 
 
 class SeriesModel extends BaseModel {
+
     public $id;
-    const id_type = "int";
+    const id_schema = ['type'=>'int'];
     public $title;
     public $library_status;
     public $rating;
-    const rating_type = "float";
+    const rating_schema = ['type'=>'float'];
     public $series_status;
     public $short_name;
     public $volumes;
-    const volumes_type = "int";
+    const volumes_schema = ['type'=>'int'];
     public $chapters;
-    const chapters_type = "int";
+    const chapters_schema = ['type'=>'int'];
     public $editors;
     public $authors;
     public $genres;
@@ -26,21 +27,19 @@ class SeriesModel extends BaseModel {
     public $alternate_titles;
     public $themes;
 
+    protected static function tableName() : string {
+        return "mangas_series";
+    }
+
     /**
      * Get all series available in the database.
      * @note implement a paging system if needed.
      * @return array<SeriesModel>
      */
     public static function all() {
-        $query = 'SELECT * FROM mangas_series ORDER BY title;';
-        $result = self::query($query);
-        $items = [];
-        /** @var SeriesModel $item */
-        while ($item = $result->fetch_object(SeriesModel::class)) {
-            $item->postProcess();
-            $items[] = $item;
-        }
-        return $items;
+        return self::findAll('*', '1', 'title', function(SeriesModel $item) {
+            return $item->postProcess();
+        });
     }
 
     /**
@@ -60,15 +59,9 @@ class SeriesModel extends BaseModel {
     }
 
     public static function incomplete() {
-        $query = 'SELECT * FROM mangas_series WHERE library_status=0 ORDER BY title;';
-        $result = self::query($query);
-        $items = [];
-        /** @var SeriesModel $item */
-        while ($item = $result->fetch_object(SeriesModel::class)) {
-            $item->postProcess();
-            $items[] = $item;
-        }
-        return $items;
+        return self::findAll('*', 'library_status=0', 'title', function(SeriesModel $item) {
+            return $item->postProcess();
+        });
     }
 
     // TODO: move that to BaseModel
@@ -77,13 +70,7 @@ class SeriesModel extends BaseModel {
      * @return SeriesModel
      */
     public static function find($id) {
-        // TODO: have a map for temporary caching during session instead.
-        $query = "SELECT * FROM mangas_series WHERE id = $id;";
-        $result = self::query($query);
-        /** @var SeriesModel $item */
-        $item = $result->fetch_object(SeriesModel::class);
-        $item->postProcess();
-        return $item;
+        return self::findById($id);
     }
 
     /**

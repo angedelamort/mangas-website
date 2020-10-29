@@ -9,8 +9,17 @@ class UserModel extends BaseModel {
     public $first_name;
     public $last_name;
     public $role;
-    const role_type = "int";
+    const role_schema = ['type'=>'int'];
     public $wishlist;
+
+
+    protected static function primaryKey() : string {
+        return 'email';
+    }
+
+    protected static function tableName() : string {
+        return "mangas_users";
+    }
 
     /**
      * Find a specific user. If the password is provided, it will check against that

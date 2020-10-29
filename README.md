@@ -47,19 +47,23 @@ TODO: describe the different sections and how to use them.
 ### Current
 
 * Make a BaseModel 
-    * finish refactoring the base class with the one that inherit. Still spaghetti.
     * should make a 'search' for the find
     * should try to avoid table_name?
-    * all APIs should return a JSON object. (probably remove form-submit)
+
+* Rename the _type to _schema with a schema class utilities that does stuff like: gettype($reflection)
+  const volumes_type = "int";
+  const volumes_schema = ['type'=>'int'];
 
 ### Next
 
 * Make a merge screen when updating from scrapper? Probably go to another page already filled with 2 rows?
     * If doing that, we can probably delete the mangas_scrapper table.
 * Probably remove all FORM-SUBMIT and replace with real API calls.
+    * all APIs should return a JSON object
 * uploader assets manually (in the edit windows)
 * make categories per language? with sections? Might be more interesting for browsing.
 * when click on profile -> (change name/mail/password).
 * When scrapping, fill those fields if they are empty and download images as well
 * recreate an initialization script instead of having updates.
     * remove migration button
+* Do a docker-compose down and re-test everything and remove useless scripts
