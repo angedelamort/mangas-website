@@ -53,6 +53,7 @@ user once logged in.
 
 ## TODO
 
+* generate a file with the controllers in sun-framework.
 * Remove all FORM-SUBMIT and replace with real API calls.
     * all APIs should return a JSON object
 * uploader assets manually (in the edit windows)

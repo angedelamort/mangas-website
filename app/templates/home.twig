@@ -1,6 +1,20 @@
 {% extends "layouts/default.twig" %}
 
 {% block content %}
+    <style>
+        body::after {
+            content: "";
+            background: url('/images/wallpaper.jpg') no-repeat top center;
+            -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(rgba(0,0,0,0)));
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            position: absolute;
+            z-index: -1;
+        }
+    </style>
+    <div style="; position: absolute; top: 20px; width: 1980px; height: 1080px; opacity: 0.5"></div>
     <div class="ui stackable grid">
         <div class="eight wide column">
         </div>
