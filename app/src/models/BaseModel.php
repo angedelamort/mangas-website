@@ -45,7 +45,7 @@ abstract class BaseModel {
         return self::query($sql);
     }
 
-    public static function findAll($fields = '*', $cond = '1', $orderBy = null, $postProcessCallback = null) {
+    public static function findAll($fields = '*', $cond = '1', $orderBy = null) {
         $tableName = static::tableName();
         $query = "SELECT $fields FROM $tableName WHERE $cond";
         if ($orderBy != null) {
@@ -55,9 +55,6 @@ abstract class BaseModel {
         $result = self::query($query);
         $items = [];
         while ($item = $result->fetch_object(get_called_class())) {
-            if ($postProcessCallback) {
-                $item = call_user_func($postProcessCallback, $item);
-            }
             $items[] = $item;
         }
         return $items;

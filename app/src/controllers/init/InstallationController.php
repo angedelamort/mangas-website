@@ -53,6 +53,8 @@ class InstallationController implements IRoutable {
             try{
                 $user = new UserModel();
                 $user->email = $request->getParsedBodyParam('email');
+                $user->first_name = "admin";
+                $user->last_name = "";
                 $user->username = $request->getParsedBodyParam('username');
                 $user->password = hash('sha512', $request->getParsedBodyParam('password'));
                 $user->role = 1;
