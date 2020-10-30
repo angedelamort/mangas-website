@@ -32,14 +32,14 @@ class AnimeNewsNetworkScrapper extends BaseScrapper {
     public function createSeriesFromId(string $id) : SeriesModel {
         $result = [];
         $url = "http://cdn.animenewsnetwork.com/encyclopedia/api.xml?manga=$id";
+        error_log($url);
         $content = file_get_contents($url);
         $xml = simplexml_load_string($content);
 
-        // name
-//        $mangaXml = $xml->xpath('//manga');
-//        if (sizeof($mangaXml) > 0) {
-//            $result['name'] = (string)$mangaXml[0]['name'];
-//        }
+        $mangaXml = $xml->xpath('//manga');
+        if (sizeof($mangaXml) > 0) {
+            $result['name'] = (string)$mangaXml[0]['name'];
+        }
 
         // genres
         $genresXml = $xml->xpath('//info[@type=\'Genres\']');
@@ -80,7 +80,10 @@ class AnimeNewsNetworkScrapper extends BaseScrapper {
             $result['thumbnail'] = '';
         }
 
+        // TODO: get alternative titles
+
         $series = new SeriesModel();
+        $series->title = $result['name'];
         $series->genres = join(',', $result['genres']);
         $series->themes = join(',', $result['themes']);
         $series->synopsis = $result['description'];

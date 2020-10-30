@@ -46,6 +46,7 @@ TODO: describe the different sections and how to use them.
 
 ### Current
 
+* Test all pages and actions and fix bugs then publish
 
 ### Next
 

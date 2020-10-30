@@ -50,13 +50,13 @@
                     </div>
                 </div>
                 <div class="text-small" style="margin-top: 15px;">Genres</div>
-                {% for genre in series.genres %}
+                {% for genre in series.getGenres %}
                     <span class="ui basic small purple label" style="margin-bottom: 5px;">{{genre}}</span>
                 {% endfor %}
                 </div>
                 <div class="description">
                 <div class="text-small">Themes</div>
-                {% for theme in series.themes %}
+                {% for theme in series.getThemes %}
                     <span class="ui basic small violet label" style="margin-bottom: 5px;">{{theme}}</span>
                 {% endfor %}
                 </div>
@@ -64,7 +64,7 @@
                 <div>
                     <div class="text-small" style="margin-top: 15px;">Alternate Titles</div>
                     <div class="ui list" style="margin-top: 0px;">
-                        {% for lang, title in series.alternate_titles %}
+                        {% for lang, title in series.getAlternateTitles %}
                             <div class="item">
                                 <i class="large language middle aligned icon"></i>
                                 <div class="content">
@@ -241,11 +241,11 @@
             <div class="two fields">
                 <div class="field">
                     <label>Genres</label>
-                    <input type="text" name="genres" placeholder="genres" value="{{ series.genres|join(", ") }}">
+                    <input type="text" name="genres" placeholder="genres" value="{{ series.genres }}">
                 </div>
                 <div class="field">
                     <label>themes</label>
-                    <input type="text" name="themes" placeholder="themes" value="{{ series.themes|join(", ") }}">
+                    <input type="text" name="themes" placeholder="themes" value="{{ series.themes }}">
                 </div>
             </div>
             <div class="four fields">

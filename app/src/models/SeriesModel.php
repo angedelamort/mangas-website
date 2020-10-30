@@ -30,6 +30,18 @@ class SeriesModel extends BaseModel {
     public $comments;
     const comments_schema = ['editor'=>'textarea'];
 
+    public function getAlternateTitles() : array {
+        return ($this->alternate_titles) ? json_decode($this->alternate_titles, true) : [];
+    }
+
+    public function getGenres() {
+        return ($this->genres) ? preg_split( "/[ ,;]/", $this->genres, -1, PREG_SPLIT_NO_EMPTY) : [];
+    }
+
+    public function getThemes() {
+        return ($this->themes) ? preg_split( "/[ ,;]/", $this->themes, -1, PREG_SPLIT_NO_EMPTY) : [];
+    }
+
     protected static function tableName() : string {
         return "mangas_series";
     }
@@ -40,9 +52,7 @@ class SeriesModel extends BaseModel {
      * @return array<SeriesModel>
      */
     public static function all() {
-        return self::findAll('*', '1', 'title', function(SeriesModel $item) {
-            return $item->postProcess();
-        });
+        return self::findAll('*', '1', 'title');
     }
 
     /**
@@ -62,18 +72,15 @@ class SeriesModel extends BaseModel {
     }
 
     public static function incomplete() {
-        return self::findAll('*', 'library_status=0', 'title', function(SeriesModel $item) {
-            return $item->postProcess();
-        });
+        return self::findAll('*', 'library_status=0', 'title');
     }
 
-    // TODO: move that to BaseModel
     /**
      * @param $id
      * @return SeriesModel
      */
     public static function find($id) {
-        return self::findById($id)->postProcess();
+        return self::findById($id);
     }
 
     /**
@@ -111,12 +118,5 @@ class SeriesModel extends BaseModel {
 
     public static function isSeriesCompleted($id) {
         return self::count('id', 'mangas_series', "library_status=1 AND id=$id");
-    }
-
-    private function postProcess() {
-        if ($this->genres) $this->genres = preg_split( "/[ ,;]/", $this->genres, -1, PREG_SPLIT_NO_EMPTY);
-        if ($this->themes) $this->themes = preg_split( "/[ ,;]/", $this->themes, -1, PREG_SPLIT_NO_EMPTY);
-        if ($this->alternate_titles) $this->alternate_titles = json_decode($this->alternate_titles, true);
-        return $this;
     }
 }
