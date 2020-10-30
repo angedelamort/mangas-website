@@ -28,12 +28,21 @@ When you launch the website for the first time, you will be prompted to set up t
 Requirements:
 * The script is windows specific and was made using power shell.
 * You will need to generate a ssh key pair and upload the public one on your server. Usually located in your ``.ssh/authorized_keys``.
-* Double click on the script or type directly in a powershell
+* Double click on the script in ``./deploy/update.ps1`` or type directly in a powershell
 
 ```Shell
 cd deploy
-update
+update all
 ```
+
+Script options:
+* **all**: Upload everything needed
+* **site**: Upload everything except the vendor folder.
+
+### htaccess and public folder
+
+Also, it worth mentioning that there is a simple ``.htaccess`` provided that redirect all the routes to ``index.php``.
+You will also need to configure your server to share the ``./public`` folder and not the root.
 
 ## Using the site
 
