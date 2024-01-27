@@ -97,7 +97,7 @@ abstract class BaseModel {
             throw new \Exception(self::$mysqli->error);
         }
 
-        self::$mysqli->query("SET NAMES 'utf8");
+        self::$mysqli->query("SET NAMES 'utf8'");
         self::$mysqli->query("SET CHARACTER SET utf8");
     }
 
